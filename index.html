@@ -1,0 +1,1210 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-title" content="Raphaël">
+<meta name="theme-color" content="#eef1f8" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#0d1020" media="(prefers-color-scheme: dark)">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="apple-touch-icon" href="icon-180.png">
+<link rel="icon" href="icon-180.png">
+<title>Carnet de Raphaël</title>
+<style>
+/* Layout : une colonne façon app iPhone, barre d'onglets en bas, feuilles modales qui montent du bas. */
+:root {
+  --bg: #eef1f8; --surface: #ffffff; --surface-2: #f5f7fc; --fg: #1a1f33; --muted: #5f6680; --line: #dde2ee;
+  --milk: #b06a08; --milk-soft: #fbefdc; --sleep: #5a4bc4; --sleep-soft: #ebe8fb; --diaper: #0f7f70; --diaper-soft: #ddf3ef;
+  --grow: #2f6fd0; --grow-soft: #e2ecfb; --band1: rgba(47, 111, 208, .10); --band2: rgba(47, 111, 208, .18);
+  --ok: #1f8a4c; --ok-soft: #dff3e7; --warn: #b54a1a; --warn-soft: #fbe6dc; --scrim: rgba(16, 20, 40, .45);
+  --display: ui-rounded, "SF Pro Rounded", "Nunito", system-ui, sans-serif;
+  --body: -apple-system, BlinkMacSystemFont, system-ui, "Segoe UI", Roboto, sans-serif;
+  color-scheme: light;
+}
+@media (prefers-color-scheme: dark) {
+  :root {
+    --bg: #0d1020; --surface: #171b2e; --surface-2: #1e233a; --fg: #e9ebf5; --muted: #9ba2bd; --line: #2a3050;
+    --milk: #f2b35a; --milk-soft: #33281a; --sleep: #ab9fff; --sleep-soft: #26234a; --diaper: #45cdb6; --diaper-soft: #15302d;
+    --grow: #7fb0ff; --grow-soft: #1b2a47; --band1: rgba(127, 176, 255, .10); --band2: rgba(127, 176, 255, .18);
+    --ok: #5fd08e; --ok-soft: #16301f; --warn: #ff9a6b; --warn-soft: #3a2117; --scrim: rgba(0, 0, 0, .6);
+    color-scheme: dark;
+  }
+}
+* { box-sizing: border-box; }
+html, body { margin: 0; }
+body { background: var(--bg); color: var(--fg); font-family: var(--body); font-size: 16px; line-height: 1.4; -webkit-tap-highlight-color: transparent; -webkit-text-size-adjust: 100%; }
+button, input, textarea, select { font: inherit; color: inherit; }
+button { cursor: pointer; }
+:focus-visible { outline: 2px solid var(--fg); outline-offset: 2px; }
+[hidden] { display: none !important; }
+.num { font-variant-numeric: tabular-nums; }
+
+.wrap { max-width: 600px; margin: 0 auto; padding-left: max(16px, env(safe-area-inset-left)); padding-right: max(16px, env(safe-area-inset-right)); }
+.top { position: sticky; top: 0; z-index: 15; background: var(--bg); padding-top: calc(10px + env(safe-area-inset-top)); padding-bottom: 10px; }
+.top .wrap { display: flex; align-items: center; justify-content: space-between; gap: 12px; }
+.top h1 { font-family: var(--display); font-weight: 700; font-size: 28px; line-height: 1.05; margin: 0; }
+.top .age { color: var(--muted); font-size: 14px; margin-top: 2px; }
+.top-r { display: flex; align-items: center; gap: 10px; }
+.sync { display: inline-flex; align-items: center; gap: 6px; font-size: 12.5px; color: var(--muted); white-space: nowrap; }
+.sync i { width: 8px; height: 8px; border-radius: 50%; background: var(--muted); }
+.sync.ok i { background: var(--ok); }
+.sync.wait i { background: var(--milk); }
+.sync.bad { color: var(--warn); } .sync.bad i { background: var(--warn); }
+.iconbtn { width: 40px; height: 40px; border-radius: 50%; border: 1px solid var(--line); background: var(--surface); display: grid; place-items: center; color: var(--muted); }
+.iconbtn svg { width: 20px; height: 20px; }
+
+main.wrap { padding-top: 6px; padding-bottom: calc(96px + env(safe-area-inset-bottom)); }
+.view { display: flex; flex-direction: column; gap: 22px; }
+h2 { font-family: var(--display); font-weight: 600; font-size: 14px; letter-spacing: .06em; text-transform: uppercase; color: var(--muted); margin: 0 0 10px; }
+.row-h { display: flex; align-items: center; justify-content: space-between; gap: 10px; margin-bottom: 10px; }
+.row-h h2 { margin: 0; }
+.panel { background: var(--surface); border: 1px solid var(--line); border-radius: 18px; padding: 14px; }
+.fine { font-size: 13px; color: var(--muted); margin: 8px 0 0; }
+
+/* Cartes "en ce moment" (aussi boutons d'ajout) */
+.now { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 10px; }
+.card { background: var(--surface); border: 1px solid var(--line); border-radius: 18px; padding: 12px 11px; display: flex; flex-direction: column; gap: 2px; min-width: 0; text-align: left; }
+.card .lbl { display: flex; align-items: center; gap: 6px; font-size: 12px; font-weight: 700; letter-spacing: .05em; text-transform: uppercase; }
+.card .lbl svg { width: 15px; height: 15px; flex: none; }
+.card .big { font-family: var(--display); font-weight: 700; font-size: 25px; line-height: 1.1; margin-top: 6px; font-variant-numeric: tabular-nums; white-space: nowrap; }
+.card .cap { font-size: 12.5px; color: var(--muted); min-height: 2.6em; overflow-wrap: anywhere; }
+.card .pill { margin-top: 8px; align-self: stretch; text-align: center; border-radius: 12px; padding: 9px 4px; font-weight: 700; font-size: 14.5px; }
+.card.milk .lbl { color: var(--milk); } .card.milk .pill { background: var(--milk-soft); color: var(--milk); }
+.card.sleep .lbl { color: var(--sleep); } .card.sleep .pill { background: var(--sleep-soft); color: var(--sleep); }
+.card.diaper .lbl { color: var(--diaper); } .card.diaper .pill { background: var(--diaper-soft); color: var(--diaper); }
+.card.sleep.live { background: var(--sleep-soft); border-color: transparent; }
+.card.sleep.live .pill { background: var(--sleep); color: var(--surface); }
+.card:active { transform: scale(.98); }
+@media (max-width: 370px) { .card .big { font-size: 21px; } .card .pill { font-size: 13px; } }
+
+.stats { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); background: var(--surface); border: 1px solid var(--line); border-radius: 18px; }
+.stat { padding: 12px; min-width: 0; }
+.stat + .stat { border-left: 1px solid var(--line); }
+.stat b { display: block; font-family: var(--display); font-weight: 700; font-size: 21px; font-variant-numeric: tabular-nums; }
+.stat span { font-size: 12.5px; color: var(--muted); }
+
+/* Journal */
+.day { margin-bottom: 14px; }
+.day h3 { font-size: 14px; font-weight: 700; margin: 0 0 6px; display: flex; justify-content: space-between; align-items: baseline; gap: 8px; }
+.day h3 small { font-weight: 500; color: var(--muted); font-size: 13px; text-align: right; font-variant-numeric: tabular-nums; }
+.list { background: var(--surface); border: 1px solid var(--line); border-radius: 18px; overflow: hidden; }
+.row { width: 100%; display: grid; grid-template-columns: 34px minmax(0, 1fr) auto; align-items: center; gap: 12px; padding: 11px 14px; background: none; border: 0; text-align: left; }
+.row + .row { border-top: 1px solid var(--line); }
+.row:active { background: var(--surface-2); }
+.ico { width: 34px; height: 34px; border-radius: 11px; display: grid; place-items: center; }
+.ico svg { width: 18px; height: 18px; }
+.ico.milk { background: var(--milk-soft); color: var(--milk); }
+.ico.sleep { background: var(--sleep-soft); color: var(--sleep); }
+.ico.diaper { background: var(--diaper-soft); color: var(--diaper); }
+.ico.grow { background: var(--grow-soft); color: var(--grow); }
+.row .t { font-weight: 600; display: block; }
+.row .s { font-size: 13px; color: var(--muted); display: block; overflow-wrap: anywhere; }
+.row .h { font-variant-numeric: tabular-nums; font-weight: 600; text-align: right; white-space: nowrap; }
+.row .h small { display: block; font-weight: 500; font-size: 12px; color: var(--muted); }
+.live-tag { color: var(--sleep); font-weight: 700; }
+.dot { display: inline-block; width: 10px; height: 10px; border-radius: 50%; border: 1px solid rgba(0,0,0,.18); vertical-align: -1px; margin-right: 4px; }
+.flag { display: inline-block; font-size: 11px; font-weight: 700; color: var(--warn); background: var(--warn-soft); border-radius: 6px; padding: 1px 6px; margin-left: 6px; vertical-align: 1px; }
+.badge { display: inline-block; font-size: 12px; font-weight: 700; border-radius: 8px; padding: 2px 7px; }
+.badge.ok { background: var(--ok-soft); color: var(--ok); }
+.badge.low, .badge.high { background: var(--warn-soft); color: var(--warn); }
+.badge.na { background: var(--surface-2); color: var(--muted); }
+.empty { background: var(--surface); border: 1px dashed var(--line); border-radius: 18px; padding: 18px; color: var(--muted); font-size: 15px; }
+.ghost { background: none; border: 1px solid var(--line); border-radius: 999px; padding: 10px 16px; font-weight: 600; color: var(--muted); width: 100%; }
+.add-sm { border: 0; border-radius: 999px; padding: 7px 14px; font-weight: 700; font-size: 14px; }
+.add-sm.milk { background: var(--milk-soft); color: var(--milk); }
+.add-sm.grow { background: var(--grow-soft); color: var(--grow); }
+
+/* Biberons */
+.verdict { display: flex; flex-direction: column; gap: 10px; }
+.verdict .head { display: flex; justify-content: space-between; align-items: flex-start; gap: 10px; }
+.verdict .big { font-family: var(--display); font-weight: 700; font-size: 32px; line-height: 1; font-variant-numeric: tabular-nums; }
+.verdict .big small { font-size: 16px; color: var(--muted); font-weight: 600; }
+.gauge { position: relative; height: 12px; border-radius: 6px; background: var(--surface-2); overflow: hidden; }
+.gauge .zone { position: absolute; top: 0; bottom: 0; background: var(--ok-soft); }
+.gauge .bar { position: absolute; left: 0; top: 3px; bottom: 3px; border-radius: 4px; background: var(--milk); }
+.gauge .tgt { position: absolute; top: 0; bottom: 0; width: 2px; background: var(--fg); }
+.gauge-l { display: flex; justify-content: space-between; font-size: 12px; color: var(--muted); font-variant-numeric: tabular-nums; }
+.kpis { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; }
+.kpi { background: var(--surface); border: 1px solid var(--line); border-radius: 16px; padding: 12px; }
+.kpi b { display: block; font-family: var(--display); font-weight: 700; font-size: 22px; font-variant-numeric: tabular-nums; }
+.kpi span { font-size: 12.5px; color: var(--muted); }
+.panel-h { display: flex; justify-content: space-between; align-items: center; gap: 10px; flex-wrap: wrap; margin-bottom: 8px; }
+.panel-h h2 { margin: 0; }
+.segsm { display: inline-flex; background: var(--surface-2); border-radius: 10px; padding: 3px; gap: 2px; }
+.segsm button { border: 0; background: none; border-radius: 8px; padding: 6px 10px; font-size: 13px; font-weight: 600; color: var(--muted); }
+.segsm button[aria-pressed="true"] { background: var(--surface); color: var(--fg); box-shadow: 0 1px 2px rgba(0,0,0,.12); }
+.chart { width: 100%; height: auto; display: block; }
+.chart .tk { fill: var(--muted); font-size: 10px; font-family: var(--body); }
+.chart .grid { stroke: var(--line); stroke-width: 1; }
+.legend { display: flex; flex-wrap: wrap; gap: 14px; font-size: 12.5px; color: var(--muted); margin-top: 6px; }
+.legend i { display: inline-block; width: 14px; height: 3px; border-radius: 2px; vertical-align: 3px; margin-right: 5px; }
+
+/* Croissance */
+.mcards { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 10px; }
+.mcard { background: var(--surface); border: 1px solid var(--line); border-radius: 16px; padding: 12px 11px; min-width: 0; }
+.mcard .lbl { font-size: 12px; font-weight: 700; text-transform: uppercase; letter-spacing: .05em; color: var(--grow); }
+.mcard .big { font-family: var(--display); font-weight: 700; font-size: 21px; margin-top: 4px; font-variant-numeric: tabular-nums; white-space: nowrap; }
+.mcard .cap { font-size: 12px; color: var(--muted); }
+.mcard .pct { font-size: 12.5px; font-weight: 700; margin-top: 4px; }
+
+/* Export */
+.chips { display: flex; flex-wrap: wrap; gap: 8px; }
+.chip { border: 1.5px solid var(--line); background: var(--surface-2); border-radius: 999px; padding: 8px 14px; font-weight: 600; font-variant-numeric: tabular-nums; }
+.chip[aria-pressed="true"] { border-color: var(--fg); background: var(--fg); color: var(--surface); }
+.checks { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 4px 12px; }
+.check { display: flex; align-items: center; gap: 10px; font-weight: 600; min-height: 44px; }
+.check input { width: 22px; height: 22px; accent-color: var(--fg); flex: none; }
+.tablewrap { overflow-x: auto; }
+table { width: 100%; border-collapse: collapse; font-size: 13.5px; font-variant-numeric: tabular-nums; }
+th, td { padding: 8px 8px; text-align: right; white-space: nowrap; }
+th:first-child, td:first-child { text-align: left; }
+thead th { font-size: 11.5px; color: var(--muted); font-weight: 600; text-transform: uppercase; letter-spacing: .04em; border-bottom: 1px solid var(--line); }
+tbody tr + tr td { border-top: 1px solid var(--line); }
+td.dim { color: var(--muted); }
+.btns { display: flex; flex-direction: column; gap: 10px; }
+.primary { border: 0; border-radius: 14px; min-height: 52px; font-weight: 700; font-size: 17px; background: var(--fg); color: var(--surface); padding: 0 16px; width: 100%; }
+.primary.milk { background: var(--milk); } .primary.sleep { background: var(--sleep); } .primary.diaper { background: var(--diaper); } .primary.grow { background: var(--grow); }
+:root .primary.milk, :root .primary.sleep, :root .primary.diaper, :root .primary.grow { color: var(--surface); }
+.primary:disabled { opacity: .5; }
+.secondary { border: 1px solid var(--line); border-radius: 14px; min-height: 50px; font-weight: 700; font-size: 16px; background: var(--surface); width: 100%; }
+.danger { border: 1px solid var(--line); border-radius: 14px; min-height: 48px; font-weight: 600; background: none; color: var(--warn); width: 100%; }
+.danger.armed { background: var(--warn); color: var(--surface); border-color: transparent; }
+
+/* Onglets */
+.tabs { position: fixed; left: 0; right: 0; bottom: 0; z-index: 20; background: var(--surface); border-top: 1px solid var(--line); padding-bottom: env(safe-area-inset-bottom); padding-left: env(safe-area-inset-left); padding-right: env(safe-area-inset-right); }
+.tabs .in { max-width: 600px; margin: 0 auto; display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); }
+.tab { border: 0; background: none; padding: 8px 2px 7px; display: flex; flex-direction: column; align-items: center; gap: 2px; font-size: 11.5px; font-weight: 600; color: var(--muted); }
+.tab svg { width: 24px; height: 24px; }
+.tab[aria-current="page"] { color: var(--fg); }
+
+/* Feuille modale */
+.scrim { position: fixed; inset: 0; background: var(--scrim); z-index: 30; }
+.sheet { position: fixed; left: 0; right: 0; bottom: 0; z-index: 31; max-width: 600px; margin: 0 auto; background: var(--surface); border-radius: 22px 22px 0 0; max-height: 90vh; max-height: 90dvh; overflow-y: auto; -webkit-overflow-scrolling: touch; padding-top: 8px; padding-bottom: calc(18px + env(safe-area-inset-bottom)); padding-left: max(18px, env(safe-area-inset-left)); padding-right: max(18px, env(safe-area-inset-right)); }
+.grab { width: 40px; height: 5px; border-radius: 3px; background: var(--line); margin: 0 auto 10px; }
+.sheet-head { display: flex; align-items: center; justify-content: space-between; margin-bottom: 14px; gap: 10px; }
+.sheet-head h4 { font-family: var(--display); font-weight: 700; font-size: 22px; margin: 0; }
+.x { background: var(--surface-2); border: 0; width: 36px; height: 36px; border-radius: 50%; font-size: 20px; line-height: 1; color: var(--muted); flex: none; }
+.field { display: flex; flex-direction: column; gap: 6px; margin-bottom: 16px; }
+.field > label, .field > .lab { font-size: 12.5px; font-weight: 700; color: var(--muted); text-transform: uppercase; letter-spacing: .05em; }
+.inp { width: 100%; background: var(--surface-2); border: 1px solid var(--line); border-radius: 12px; padding: 12px; font-size: 16px; min-height: 48px; -webkit-appearance: none; appearance: none; }
+textarea.inp { min-height: 60px; resize: vertical; }
+.grid3 { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 10px; }
+.stepper { display: grid; grid-template-columns: 56px minmax(0, 1fr) 56px; gap: 8px; }
+.stepper button { border: 0; border-radius: 12px; background: var(--milk-soft); color: var(--milk); font-size: 24px; font-weight: 700; }
+.stepper .inp { text-align: center; font-family: var(--display); font-size: 28px; font-weight: 700; padding: 6px; }
+.seg { display: grid; grid-template-columns: repeat(auto-fit, minmax(88px, 1fr)); gap: 8px; }
+.seg input { position: absolute; opacity: 0; pointer-events: none; }
+.seg label { display: flex; align-items: center; justify-content: center; gap: 6px; min-height: 48px; border-radius: 14px; border: 1.5px solid var(--line); background: var(--surface-2); font-weight: 700; text-align: center; padding: 6px; font-size: 15px; }
+.seg input:checked + label { border-color: currentColor; }
+.seg.milk input:checked + label { color: var(--milk); background: var(--milk-soft); }
+.seg.diaper input:checked + label { color: var(--diaper); background: var(--diaper-soft); }
+.seg input:focus-visible + label { outline: 2px solid var(--fg); outline-offset: 2px; }
+.seg.colors { grid-template-columns: repeat(auto-fit, minmax(96px, 1fr)); }
+.seg.colors label { justify-content: flex-start; padding-left: 10px; font-size: 14px; text-align: left; }
+.seg .sw { width: 18px; height: 18px; border-radius: 50%; border: 1px solid rgba(0,0,0,.2); flex: none; }
+.alert { background: var(--warn-soft); color: var(--warn); border-radius: 12px; padding: 10px 12px; font-size: 14px; font-weight: 600; margin-bottom: 16px; }
+.err { color: var(--warn); font-size: 14px; font-weight: 600; min-height: 1em; margin-bottom: 8px; }
+.hint { font-size: 13px; color: var(--muted); }
+
+.toast { position: fixed; left: 50%; transform: translateX(-50%); bottom: calc(76px + env(safe-area-inset-bottom)); z-index: 40; background: var(--fg); color: var(--surface); border-radius: 14px; padding: 10px 10px 10px 16px; display: flex; align-items: center; gap: 12px; width: min(560px, calc(100% - 32px)); font-weight: 600; font-size: 15px; box-shadow: 0 8px 28px rgba(0,0,0,.25); }
+.toast span { flex: 1; min-width: 0; }
+.toast button { background: none; border: 0; color: inherit; text-decoration: underline; text-underline-offset: 3px; font-weight: 700; padding: 6px 8px; }
+
+/* Connexion */
+.login { min-height: 100vh; min-height: 100dvh; display: grid; place-items: center; padding: 24px max(20px, env(safe-area-inset-left)); }
+.login form { width: 100%; max-width: 380px; display: flex; flex-direction: column; gap: 10px; }
+.login h1 { font-family: var(--display); font-size: 30px; margin: 0; }
+.login p { color: var(--muted); margin: 0 0 8px; }
+.login label { font-size: 13px; font-weight: 700; color: var(--muted); }
+.boot { min-height: 60vh; display: grid; place-items: center; color: var(--muted); text-align: center; padding: 24px; }
+
+/* Rapport */
+.report { position: fixed; inset: 0; z-index: 50; background: #fff; color: #111; overflow-y: auto; padding: calc(16px + env(safe-area-inset-top)) max(16px, env(safe-area-inset-right)) calc(24px + env(safe-area-inset-bottom)) max(16px, env(safe-area-inset-left)); }
+.report .bar { display: flex; gap: 10px; margin-bottom: 16px; max-width: 760px; margin-inline: auto; }
+.report .bar button { flex: 1; min-height: 46px; border-radius: 12px; font-weight: 700; border: 1px solid #ccd; background: #fff; color: #111; }
+.report .bar button.go { background: #1a1f33; color: #fff; border-color: transparent; }
+.report .doc { max-width: 760px; margin: 0 auto; font-size: 13px; }
+.report h1 { font-size: 22px; margin: 0 0 2px; }
+.report h2 { color: #333; font-size: 13px; margin: 18px 0 6px; }
+.report .sub { color: #555; margin: 0 0 10px; }
+.report table { font-size: 12px; }
+.report th, .report td { border-bottom: 1px solid #e3e3e8; padding: 5px 6px; color: #111; }
+.report thead th { color: #555; }
+.report .kv { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 6px 16px; }
+.report .kv div { border: 1px solid #e3e3e8; border-radius: 8px; padding: 8px; }
+.report .kv b { display: block; font-size: 16px; }
+@media print {
+  body > *:not(#report) { display: none !important; }
+  .report { position: static; padding: 0; overflow: visible; }
+  .report .bar { display: none; }
+}
+@media (prefers-reduced-motion: no-preference) {
+  .sheet:not([hidden]) { animation: up .22s ease-out; }
+  @keyframes up { from { transform: translateY(24px); opacity: .6; } to { transform: none; opacity: 1; } }
+}
+</style>
+</head>
+<body>
+
+<div id="boot" class="boot">Chargement…</div>
+
+<div id="login" class="login" hidden>
+  <form id="login-form" novalidate>
+    <h1>Carnet de Raphaël</h1>
+    <p>Connectez-vous avec votre e-mail et votre mot de passe.</p>
+    <label for="l-email">E-mail</label>
+    <input class="inp" id="l-email" type="email" autocomplete="username" autocapitalize="off" required>
+    <label for="l-pass">Mot de passe</label>
+    <input class="inp" id="l-pass" type="password" autocomplete="current-password" required>
+    <div class="err" id="l-err"></div>
+    <button class="primary" type="submit" id="l-go">Se connecter</button>
+    <button class="ghost" type="button" id="l-reset">Mot de passe oublié ou à changer</button>
+    <p class="hint" id="l-info"></p>
+  </form>
+</div>
+
+<div id="app" hidden>
+  <header class="top">
+    <div class="wrap">
+      <div>
+        <h1 id="baby-name">Raphaël</h1>
+        <div class="age" id="baby-age"></div>
+      </div>
+      <div class="top-r">
+        <div class="sync" id="sync"><i></i><span></span></div>
+        <button class="iconbtn" id="btn-settings" aria-label="Réglages"><svg viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M12 8.5a3.5 3.5 0 1 0 0 7 3.5 3.5 0 0 0 0-7zm8.4 4.6.1-1.1-.1-1.1 2-1.6-2-3.4-2.4 1a8 8 0 0 0-1.9-1.1L15.7 3h-4l-.4 2.7a8 8 0 0 0-1.9 1.1l-2.4-1-2 3.4 2 1.6-.1 1.1.1 1.1-2 1.6 2 3.4 2.4-1c.6.5 1.2.8 1.9 1.1l.4 2.7h4l.4-2.7c.7-.3 1.3-.6 1.9-1.1l2.4 1 2-3.4-2-1.6z" opacity=".9"/></svg></button>
+      </div>
+    </div>
+  </header>
+
+  <main class="wrap">
+    <!-- ACCUEIL -->
+    <section class="view" id="v-accueil">
+      <div class="now" id="now"></div>
+      <div><h2>Aujourd'hui</h2><div class="stats" id="stats"></div></div>
+      <div>
+        <h2>Journal</h2>
+        <div id="journal"></div>
+        <button class="ghost" id="more-journal" hidden>Afficher plus de jours</button>
+      </div>
+    </section>
+
+    <!-- BIBERONS -->
+    <section class="view" id="v-bib" hidden>
+      <div class="panel verdict" id="bib-verdict"></div>
+      <div class="kpis" id="bib-kpis"></div>
+      <div class="panel">
+        <div class="panel-h"><h2>Lait par jour</h2><div class="segsm" id="bib-range"></div></div>
+        <div id="bib-chart"></div>
+        <div class="legend"><span><i style="background:var(--milk)"></i>Total du jour</span><span><i style="background:var(--fg)"></i>Repère selon le poids</span></div>
+      </div>
+      <div class="panel">
+        <div class="panel-h"><h2>Volume moyen par biberon</h2></div>
+        <div id="bib-chart2"></div>
+      </div>
+      <div>
+        <div class="row-h"><h2>Historique</h2><button class="add-sm milk" data-add="biberon">+ Biberon</button></div>
+        <div id="bib-hist"></div>
+        <button class="ghost" id="more-bib" hidden>Afficher plus de jours</button>
+      </div>
+    </section>
+
+    <!-- CROISSANCE -->
+    <section class="view" id="v-croissance" hidden>
+      <div class="mcards" id="m-cards"></div>
+      <div class="panel">
+        <div class="panel-h"><div class="segsm" id="g-kind"></div></div>
+        <div id="g-chart"></div>
+        <p class="fine" id="g-note"></p>
+      </div>
+      <div>
+        <div class="row-h"><h2>Mesures</h2><button class="add-sm grow" id="add-measure">+ Mesure</button></div>
+        <div id="m-list"></div>
+      </div>
+    </section>
+
+    <!-- EXPORT -->
+    <section class="view" id="v-export" hidden>
+      <div class="panel">
+        <h2>Période</h2>
+        <div class="chips" id="x-range"></div>
+        <h2 style="margin-top:16px">Contenu</h2>
+        <div class="checks" id="x-incl"></div>
+      </div>
+      <div class="panel" id="x-preview"></div>
+      <div class="btns">
+        <button class="primary" id="x-csv">Exporter en CSV (Excel, Numbers)</button>
+        <button class="secondary" id="x-report">Résumé pour le pédiatre (PDF)</button>
+      </div>
+      <p class="fine">Le CSV s'ouvre dans Excel ou Numbers. Depuis l'iPhone, choisissez « Enregistrer dans Fichiers », Mail ou AirDrop. Pour le résumé, utilisez « Imprimer » puis le partage pour en faire un PDF.</p>
+    </section>
+  </main>
+
+  <nav class="tabs" aria-label="Sections">
+    <div class="in">
+      <button class="tab" data-tab="accueil" aria-current="page"><svg viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M12 3.2 3 10.4V21h6.2v-6h5.6v6H21V10.4z"/></svg>Accueil</button>
+      <button class="tab" data-tab="bib"><svg viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M9.5 2h5v2.2l1.8 2.3c.45.57.7 1.28.7 2V20a2 2 0 0 1-2 2H9a2 2 0 0 1-2-2V8.5c0-.72.25-1.43.7-2l1.8-2.3z"/></svg>Biberons</button>
+      <button class="tab" data-tab="croissance"><svg viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M3 20h18v2H3zM4 17l5-6 4 3 6-8 1.6 1.2-7.2 9.6-4-3L5.5 18.3z"/></svg>Croissance</button>
+      <button class="tab" data-tab="export"><svg viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M11 3h2v10.2l3.6-3.6 1.4 1.4-6 6-6-6 1.4-1.4 3.6 3.6zM4 19h16v2H4z"/></svg>Export</button>
+    </div>
+  </nav>
+</div>
+
+<div class="scrim" id="scrim" hidden></div>
+<div class="sheet" id="sheet" role="dialog" aria-modal="true" aria-labelledby="sheet-title" hidden></div>
+<div class="toast" id="toast" role="status" hidden><span id="toast-msg"></span><button id="toast-btn" hidden>Annuler</button></div>
+<div class="report" id="report" hidden></div>
+
+<script>
+/* ============================================================
+   ⬇️  CONFIGURATION FIREBASE
+   Collez ci-dessous le bloc « firebaseConfig » affiché par Firebase
+   (Paramètres du projet > Vos applications > Configuration).
+   Tant qu'il est vide, l'app fonctionne en MODE LOCAL :
+   les données restent sur le téléphone, sans synchronisation.
+   ============================================================ */
+const FIREBASE_CONFIG = {
+  apiKey: "AIzaSyCYiBCIUw1cOqVim_qtzm4vInrE8OPnY98",
+  authDomain: "carnet-raphael.firebaseapp.com",
+  projectId: "carnet-raphael",
+  storageBucket: "carnet-raphael.firebasestorage.app",
+  messagingSenderId: "440010683437",
+  appId: "1:440010683437:web:9d81d1297c138baab834a4"
+};
+
+const APP_VERSION = '1.0.1';
+const FB_VER = '10.12.2';
+
+(() => {
+'use strict';
+const $ = (s) => document.querySelector(s);
+const $$ = (s) => [...document.querySelectorAll(s)];
+const MODE = FIREBASE_CONFIG && FIREBASE_CONFIG.apiKey ? 'firebase' : 'local';
+
+/* ---------- Références OMS (garçons, 0–24 mois, LMS par mois) ---------- */
+const WHO = {
+  poids: [[0.3487,3.3464,0.14602],[0.2297,4.4709,0.13395],[0.1970,5.5675,0.12385],[0.1738,6.3762,0.11727],[0.1553,7.0023,0.11316],[0.1395,7.5105,0.11080],[0.1257,7.9340,0.10958],[0.1134,8.2970,0.10902],[0.1021,8.6151,0.10882],[0.0917,8.9014,0.10881],[0.0820,9.1649,0.10891],[0.0730,9.4122,0.10906],[0.0644,9.6479,0.10925],[0.0563,9.8749,0.10949],[0.0487,10.0953,0.10976],[0.0413,10.3108,0.11007],[0.0343,10.5228,0.11041],[0.0275,10.7319,0.11079],[0.0211,10.9385,0.11119],[0.0148,11.1430,0.11164],[0.0087,11.3462,0.11211],[0.0029,11.5486,0.11261],[-0.0028,11.7504,0.11314],[-0.0083,11.9514,0.11369],[-0.0137,12.1515,0.11426]],
+  taille: [[1,49.8842,0.03795],[1,54.7244,0.03557],[1,58.4249,0.03424],[1,61.4292,0.03328],[1,63.8860,0.03257],[1,65.9026,0.03204],[1,67.6236,0.03165],[1,69.1645,0.03139],[1,70.5994,0.03124],[1,71.9687,0.03117],[1,73.2812,0.03118],[1,74.5388,0.03125],[1,75.7488,0.03137],[1,76.9186,0.03154],[1,78.0497,0.03174],[1,79.1458,0.03197],[1,80.2113,0.03222],[1,81.2487,0.03250],[1,82.2587,0.03279],[1,83.2418,0.03310],[1,84.1996,0.03342],[1,85.1348,0.03376],[1,86.0477,0.03410],[1,86.9410,0.03445],[1,87.8161,0.03479]],
+  pc: [[1,34.4618,0.03686],[1,37.2759,0.03133],[1,39.1285,0.02997],[1,40.5135,0.02918],[1,41.6317,0.02868],[1,42.5576,0.02837],[1,43.3306,0.02817],[1,43.9803,0.02804],[1,44.5300,0.02796],[1,44.9998,0.02792],[1,45.4051,0.02790],[1,45.7573,0.02789],[1,46.0661,0.02789],[1,46.3395,0.02789],[1,46.5844,0.02791],[1,46.8060,0.02792],[1,47.0088,0.02795],[1,47.1962,0.02797],[1,47.3711,0.02800],[1,47.5357,0.02803],[1,47.6919,0.02806],[1,47.8408,0.02810],[1,47.9833,0.02813],[1,48.1201,0.02817],[1,48.2515,0.02821]]
+};
+const KIND = {
+  poids: { label: 'Poids', unit: 'kg', dec: 3, min: 1, max: 25 },
+  taille: { label: 'Taille', unit: 'cm', dec: 1, min: 35, max: 110 },
+  pc: { label: 'Crâne', long: 'Périmètre crânien', unit: 'cm', dec: 1, min: 25, max: 55 }
+};
+const PZ = [[3, -1.8808], [15, -1.0364], [50, 0], [85, 1.0364], [97, 1.8808]];
+function lmsAt(kind, m) {
+  const t = WHO[kind];
+  if (m <= 0) return t[0];
+  if (m >= 24) return t[24];
+  const i = Math.floor(m), f = m - i, a = t[i], b = t[i + 1];
+  return [a[0] + (b[0] - a[0]) * f, a[1] + (b[1] - a[1]) * f, a[2] + (b[2] - a[2]) * f];
+}
+function zOf(kind, m, x) { const [L, M, S] = lmsAt(kind, m); return Math.abs(L) < 1e-6 ? Math.log(x / M) / S : (Math.pow(x / M, L) - 1) / (L * S); }
+function valAt(kind, m, z) { const [L, M, S] = lmsAt(kind, m); return Math.abs(L) < 1e-6 ? M * Math.exp(S * z) : M * Math.pow(1 + L * S * z, 1 / L); }
+function cdf(z) { const t = 1 / (1 + 0.2316419 * Math.abs(z)); const d = 0.3989423 * Math.exp(-z * z / 2); const p = d * t * (0.3193815 + t * (-0.3565638 + t * (1.781478 + t * (-1.821256 + t * 1.330274)))); return z > 0 ? 1 - p : p; }
+function pctLabel(p) { if (p < 1) return '< P1'; if (p > 99) return '> P99'; return 'P' + Math.round(p); }
+
+/* ---------- Libellés ---------- */
+const ICONS = {
+  biberon: '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9.5 2h5v2.2l1.8 2.3c.45.57.7 1.28.7 2V20a2 2 0 0 1-2 2H9a2 2 0 0 1-2-2V8.5c0-.72.25-1.43.7-2l1.8-2.3z" fill="currentColor"/></svg>',
+  dodo: '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M20.5 14.6A8.5 8.5 0 1 1 9.4 3.5a7 7 0 0 0 11.1 11.1z" fill="currentColor"/></svg>',
+  couche: '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 6h18v3.5a9.5 9.5 0 0 1-6.2 8.9l-.8.3h-4l-.8-.3A9.5 9.5 0 0 1 3 9.5z" fill="currentColor"/></svg>',
+  mesure: '<svg viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M3 20h18v2H3zM4 17l5-6 4 3 6-8 1.6 1.2-7.2 9.6-4-3L5.5 18.3z"/></svg>'
+};
+const CLS = { biberon: 'milk', dodo: 'sleep', couche: 'diaper' };
+const COUCHE = { pipi: 'Pipi', caca: 'Caca', mixte: 'Pipi + caca' };
+const LAIT = { infantile: 'Lait infantile', maternel: 'Lait maternel' };
+const COULEURS = {
+  jaune: ['Jaune', '#e8c33a'], moutarde: ['Moutarde', '#c49a2a'], orange: ['Orangé', '#d9822b'], vert: ['Vert', '#6e8b3d'],
+  marron: ['Marron', '#7a5230'], noir: ['Noir', '#2b2420'], rouge: ['Avec du sang', '#b3261e'], blanc: ['Blanc / gris pâle', '#e8e4d8']
+};
+const CONSIST = { liquide: 'Liquide', grumeleuse: 'Grumeleuse', molle: 'Molle', pateuse: 'Pâteuse', dure: 'Dure' };
+const QTE = { peu: 'Peu', normale: 'Normale', beaucoup: 'Beaucoup' };
+const ALERTES = {
+  blanc: "Selles décolorées (blanches, gris pâle, mastic) : à montrer rapidement au médecin, comme l'indique la carte de couleur des selles du carnet de santé.",
+  rouge: 'Présence de sang dans les selles : demandez l\'avis du médecin.',
+  noir: 'Selles noires après les premiers jours de vie : demandez l\'avis du médecin.'
+};
+
+/* ---------- Utilitaires ---------- */
+const DAY = 86400000;
+const pad = (n) => String(n).padStart(2, '0');
+const dayKey = (ms) => { const d = new Date(ms); return d.getFullYear() + '-' + pad(d.getMonth() + 1) + '-' + pad(d.getDate()); };
+const keyMs = (k) => { const [y, m, d] = String(k).split('-').map(Number); return new Date(y, m - 1, d).getTime(); };
+const sod = (ms) => { const d = new Date(ms); d.setHours(0, 0, 0, 0); return d.getTime(); };
+const addDays = (ms, n) => { const d = new Date(ms); d.setDate(d.getDate() + n); return d.getTime(); };
+const hm = (ms) => { const d = new Date(ms); return pad(d.getHours()) + ':' + pad(d.getMinutes()); };
+const dShort = (ms) => { const d = new Date(ms); return pad(d.getDate()) + '/' + pad(d.getMonth() + 1); };
+const dLong = (ms) => new Date(ms).toLocaleDateString('fr-FR', { day: 'numeric', month: 'long', year: 'numeric' });
+const toInput = (ms) => dayKey(ms) + 'T' + hm(ms);
+const fromInput = (v) => { const m = /^(\d{4})-(\d{2})-(\d{2})T(\d{2}):(\d{2})/.exec(v || ''); return m ? new Date(+m[1], m[2] - 1, +m[3], +m[4], +m[5]).getTime() : null; };
+const dur = (ms) => { const m = Math.max(0, Math.round(ms / 60000)); const h = Math.floor(m / 60); return h ? h + ' h ' + pad(m % 60) : m + ' min'; };
+const durShort = (ms) => { const m = Math.max(0, Math.floor(ms / 60000)); const h = Math.floor(m / 60); return h ? h + 'h' + pad(m % 60) : m + ' min'; };
+const fr = (n, d = 1) => Number(n).toLocaleString('fr-FR', { maximumFractionDigits: d, minimumFractionDigits: 0 });
+const esc = (s) => String(s ?? '').replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+const newId = () => Date.now().toString(36) + Math.random().toString(36).slice(2, 8);
+const num = (v) => { if (v == null || v === '') return null; const n = Number(String(v).replace(',', '.').replace(/\s/g, '')); return isFinite(n) ? n : NaN; };
+const lsGet = (k) => { try { return localStorage.getItem(k); } catch { return null; } };
+const lsSet = (k, v) => { try { localStorage.setItem(k, v); } catch {} };
+const cap1 = (s) => s.charAt(0).toUpperCase() + s.slice(1);
+const pkey = (email) => String(email || 'local').toLowerCase().replace(/[^a-z0-9]/g, '_');
+function dayLabel(ms) {
+  const t = sod(Date.now());
+  if (ms === t) return "Aujourd'hui";
+  if (ms === addDays(t, -1)) return 'Hier';
+  return cap1(new Date(ms).toLocaleDateString('fr-FR', { weekday: 'long', day: 'numeric', month: 'long' }));
+}
+
+/* ---------- État ---------- */
+const S = {
+  days: new Map(), measures: new Map(), config: {}, me: null,
+  tab: lsGet('tab') || 'accueil', journalDays: 3, bibDays: 7, bibRange: '14', growth: 'poids',
+  xRange: '7j', xIncl: { biberon: true, dodo: true, couche: true, mesure: true },
+  syncKind: 'local'
+};
+let EV = [], MS = [];
+
+function rebuild() {
+  const out = [];
+  for (const [, doc] of S.days) {
+    const evs = doc && doc.events;
+    if (!evs || typeof evs !== 'object') continue;
+    for (const id of Object.keys(evs)) {
+      const e = evs[id];
+      if (!e || typeof e.at !== 'number' || !CLS[e.t]) continue;
+      out.push({ ...e, id });
+    }
+  }
+  out.sort((a, b) => b.at - a.at);
+  EV = out;
+  MS = [...S.measures].map(([id, m]) => ({ ...m, id })).filter((m) => m && m.date).sort((a, b) => keyMs(a.date) - keyMs(b.date));
+}
+const ongoingSleep = () => EV.find((e) => e.t === 'dodo' && !e.end) || null;
+const birthMs = () => S.config.naissance ? keyMs(S.config.naissance) : null;
+const ageMonths = (ms) => { const b = birthMs(); return b == null ? null : (sod(ms) - b) / DAY / 30.4375; };
+function ageText(ms) {
+  const b = birthMs(); if (b == null) return '';
+  const days = Math.round((sod(ms) - b) / DAY);
+  if (days < 0) return '';
+  if (days < 14) return days + (days > 1 ? ' jours' : ' jour');
+  if (days < 61) { const w = Math.floor(days / 7), r = days % 7; return w + ' semaines' + (r ? ' et ' + r + ' j' : ''); }
+  const B = new Date(b), N = new Date(sod(ms));
+  let months = (N.getFullYear() - B.getFullYear()) * 12 + N.getMonth() - B.getMonth();
+  if (N.getDate() < B.getDate()) months--;
+  const anchor = new Date(B); anchor.setMonth(B.getMonth() + months);
+  const r = Math.round((N - anchor) / DAY);
+  return months + ' mois' + (r ? ' et ' + r + ' j' : '');
+}
+function weightPts() { return MS.filter((m) => m.poids).map((m) => ({ ms: keyMs(m.date) + DAY / 2, v: m.poids })); }
+function weightAt(ms) {
+  const p = weightPts(); if (!p.length) return null;
+  if (ms <= p[0].ms) return { v: p[0].v, ref: p[0].ms };
+  for (let i = 1; i < p.length; i++) if (ms <= p[i].ms) { const a = p[i - 1], b = p[i]; return { v: a.v + (b.v - a.v) * (ms - a.ms) / (b.ms - a.ms), ref: b.ms }; }
+  const l = p[p.length - 1]; return { v: l.v, ref: l.ms };
+}
+const appert = (kg) => Math.round(kg * 100 + 250);
+function verdictOf(ratio) {
+  if (ratio == null) return { cls: 'na', txt: 'Pas de repère' };
+  if (ratio < 0.85) return { cls: 'low', txt: 'En dessous du repère' };
+  if (ratio > 1.15) return { cls: 'high', txt: 'Au-dessus du repère' };
+  return { cls: 'ok', txt: 'Dans le repère' };
+}
+function whoName(by) {
+  if (!by) return '';
+  const n = (S.config.parents || {})[pkey(by)];
+  if (n) return n;
+  if (by === 'local') return '';
+  return String(by).split('@')[0];
+}
+
+/* ---------- Totaux ---------- */
+function overlap(e, a, b, now) { const end = e.end || now; return Math.max(0, Math.min(end, b) - Math.max(e.at, a)); }
+function totals(a, b, now = Date.now()) {
+  const r = { ml: 0, nb: 0, sleep: 0, nbSleep: 0, couches: 0, pipi: 0, caca: 0, alerts: 0 };
+  for (const e of EV) {
+    if (e.t === 'dodo') { const o = overlap(e, a, b, now); if (o > 0) { r.sleep += o; if (e.at >= a && e.at < b) r.nbSleep++; } continue; }
+    if (e.at < a || e.at >= b) continue;
+    if (e.t === 'biberon') { r.nb++; r.ml += Number(e.ml) || 0; }
+    else if (e.t === 'couche') { r.couches++; if (e.couche !== 'caca') r.pipi++; if (e.couche !== 'pipi') r.caca++; if (ALERTES[e.couleur]) r.alerts++; }
+  }
+  return r;
+}
+
+/* ============================================================
+   STOCKAGE : local (téléphone) ou Firebase (synchronisé)
+   ============================================================ */
+const strip = (o) => { const c = { ...o }; delete c.id; return c; };
+const LocalStore = {
+  key: 'carnet-raphael-local',
+  load() {
+    try {
+      const j = JSON.parse(lsGet(this.key) || '{}');
+      S.days = new Map(Object.entries(j.days || {}));
+      S.measures = new Map(Object.entries(j.measures || {}));
+      S.config = j.config || {};
+    } catch {}
+  },
+  save() { lsSet(this.key, JSON.stringify({ days: Object.fromEntries(S.days), measures: Object.fromEntries(S.measures), config: S.config })); },
+  putEvent(ev) { const k = dayKey(ev.at); const d = S.days.get(k) || { date: k, events: {} }; S.days.set(k, { ...d, events: { ...d.events, [ev.id]: strip(ev) } }); this.save(); changed(); },
+  deleteEvent(ev) { const k = dayKey(ev.at); const d = S.days.get(k); if (d && d.events) { const e = { ...d.events }; delete e[ev.id]; S.days.set(k, { ...d, events: e }); } this.save(); changed(); },
+  putMeasure(m) { S.measures.set(m.id, strip(m)); this.save(); changed(); },
+  deleteMeasure(m) { S.measures.delete(m.id); this.save(); changed(); },
+  saveConfig(p) { S.config = { ...S.config, ...p, parents: { ...(S.config.parents || {}), ...(p.parents || {}) } }; this.save(); changed(); }
+};
+
+let FB = null;
+const unsubs = [];
+const FireStore = {
+  ref(k) { return FB.F.doc(FB.db, 'jours', k); },
+  putEvent(ev) {
+    const k = dayKey(ev.at);
+    FB.F.setDoc(this.ref(k), { date: k, events: { [ev.id]: strip(ev) } }, { merge: true }).catch(writeError);
+  },
+  deleteEvent(ev) {
+    FB.F.updateDoc(this.ref(dayKey(ev.at)), { ['events.' + ev.id]: FB.F.deleteField() }).catch(writeError);
+  },
+  putMeasure(m) { FB.F.setDoc(FB.F.doc(FB.db, 'mesures', m.id), strip(m)).catch(writeError); },
+  deleteMeasure(m) { FB.F.deleteDoc(FB.F.doc(FB.db, 'mesures', m.id)).catch(writeError); },
+  saveConfig(p) { FB.F.setDoc(FB.F.doc(FB.db, 'config', 'bebe'), p, { merge: true }).catch(writeError); }
+};
+const store = MODE === 'firebase' ? FireStore : LocalStore;
+function writeError(e) {
+  const c = e && e.code;
+  if (c === 'permission-denied') toast("Refusé : ce compte n'est pas autorisé dans les règles Firebase.");
+  else toast("Erreur d'enregistrement. Vérifiez la connexion et réessayez.");
+  console.error(e);
+}
+
+async function startFirebase() {
+  const base = 'https://www.gstatic.com/firebasejs/' + FB_VER + '/';
+  let A, U, F;
+  try {
+    [A, U, F] = await Promise.all([import(base + 'firebase-app.js'), import(base + 'firebase-auth.js'), import(base + 'firebase-firestore.js')]);
+  } catch (e) {
+    $('#boot').textContent = "Impossible de charger l'app : vérifiez la connexion internet puis rouvrez-la.";
+    return;
+  }
+  const app = A.initializeApp(FIREBASE_CONFIG);
+  const auth = U.getAuth(app);
+  let db;
+  try { db = F.initializeFirestore(app, { localCache: F.persistentLocalCache({ tabManager: F.persistentMultipleTabManager() }) }); }
+  catch { db = F.getFirestore(app); }
+  FB = { A, U, F, app, auth, db };
+  U.onAuthStateChanged(auth, (u) => {
+    if (u) { S.me = (u.email || '').toLowerCase(); showApp(); listen(); }
+    else { stopListen(); S.me = null; showLogin(); }
+  });
+}
+let meta = { days: null, mes: null };
+function listen() {
+  stopListen();
+  const { F, db } = FB;
+  unsubs.push(F.onSnapshot(F.collection(db, 'jours'), { includeMetadataChanges: true }, (snap) => {
+    const m = new Map(); snap.forEach((d) => m.set(d.id, d.data())); S.days = m; meta.days = snap.metadata; updateSync(); changed();
+  }, listenError));
+  unsubs.push(F.onSnapshot(F.collection(db, 'mesures'), { includeMetadataChanges: true }, (snap) => {
+    const m = new Map(); snap.forEach((d) => m.set(d.id, d.data())); S.measures = m; meta.mes = snap.metadata; updateSync(); changed();
+  }, listenError));
+  unsubs.push(F.onSnapshot(F.doc(db, 'config', 'bebe'), (snap) => { S.config = snap.exists() ? snap.data() : {}; changed(); }, listenError));
+}
+function stopListen() { while (unsubs.length) { try { unsubs.pop()(); } catch {} } }
+function listenError(e) {
+  console.error(e);
+  S.syncKind = e && e.code === 'permission-denied' ? 'denied' : 'error';
+  renderSync();
+}
+function updateSync() {
+  const ms = [meta.days, meta.mes].filter(Boolean);
+  if (!navigator.onLine) S.syncKind = ms.some((m) => m.hasPendingWrites) ? 'offline-pending' : 'offline';
+  else if (ms.some((m) => m.hasPendingWrites)) S.syncKind = 'pending';
+  else if (ms.some((m) => m.fromCache)) S.syncKind = 'connecting';
+  else S.syncKind = 'ok';
+  renderSync();
+}
+window.addEventListener('online', () => { if (MODE === 'firebase') updateSync(); });
+window.addEventListener('offline', () => { if (MODE === 'firebase') updateSync(); });
+
+/* ---------- Écrans ---------- */
+function showLogin() { $('#boot').hidden = true; $('#app').hidden = true; $('#login').hidden = false; }
+function showApp() { $('#boot').hidden = true; $('#login').hidden = true; $('#app').hidden = false; render(); }
+$('#login-form').addEventListener('submit', async (e) => {
+  e.preventDefault();
+  const err = $('#l-err'); err.textContent = '';
+  const email = $('#l-email').value.trim(), pass = $('#l-pass').value;
+  if (!email || !pass) { err.textContent = 'Indiquez votre e-mail et votre mot de passe.'; return; }
+  $('#l-go').disabled = true;
+  try { await FB.U.signInWithEmailAndPassword(FB.auth, email, pass); }
+  catch (x) {
+    const c = x && x.code || '';
+    err.textContent = c.includes('network') ? 'Pas de connexion internet.' : c.includes('too-many') ? 'Trop d\'essais. Patientez quelques minutes.' : 'E-mail ou mot de passe incorrect.';
+  }
+  $('#l-go').disabled = false;
+});
+
+$('#l-reset').addEventListener('click', async () => {
+  const err = $('#l-err'), info = $('#l-info'); err.textContent = ''; info.textContent = '';
+  const email = $('#l-email').value.trim();
+  if (!email) { err.textContent = 'Saisissez d\'abord votre e-mail ci-dessus.'; return; }
+  try { FB.auth.languageCode = 'fr'; await FB.U.sendPasswordResetEmail(FB.auth, email); info.textContent = 'Si ce compte existe, un e-mail vient d\'être envoyé pour choisir un nouveau mot de passe (pensez aux spams).'; }
+  catch (x) { err.textContent = (x && x.code || '').includes('network') ? 'Pas de connexion internet.' : 'Envoi impossible. Vérifiez l\'adresse.'; }
+});
+
+/* ============================================================
+   RENDU
+   ============================================================ */
+let renderQueued = false;
+function changed() { rebuild(); if (!renderQueued) { renderQueued = true; requestAnimationFrame(() => { renderQueued = false; render(); }); } }
+
+function render() {
+  if ($('#app').hidden) return;
+  const now = Date.now();
+  $('#baby-name').textContent = S.config.prenom || 'Raphaël';
+  const at = ageText(now);
+  $('#baby-age').textContent = at ? at : 'Date de naissance à renseigner (réglages)';
+  $$('.tab').forEach((t) => { if (t.dataset.tab === S.tab) t.setAttribute('aria-current', 'page'); else t.removeAttribute('aria-current'); });
+  ['accueil', 'bib', 'croissance', 'export'].forEach((v) => { $('#v-' + v).hidden = v !== S.tab; });
+  renderSync();
+  if (S.tab === 'accueil') renderHome(now);
+  if (S.tab === 'bib') renderBib(now);
+  if (S.tab === 'croissance') renderGrowth(now);
+  if (S.tab === 'export') renderExport(now);
+}
+
+function renderSync() {
+  const map = {
+    local: ['wait', 'Mode local'], ok: ['ok', 'Synchronisé'], pending: ['wait', 'Envoi…'], connecting: ['wait', 'Connexion…'],
+    offline: ['bad', 'Hors ligne'], 'offline-pending': ['bad', 'Hors ligne · en attente'], error: ['bad', 'Synchro coupée'], denied: ['bad', 'Accès refusé']
+  };
+  const [c, t] = map[S.syncKind] || map.connecting;
+  const el = $('#sync'); el.className = 'sync ' + c; el.querySelector('span').textContent = t;
+}
+
+/* ----- Accueil ----- */
+function renderHome(now) {
+  const t0 = sod(now);
+  const lastB = EV.find((e) => e.t === 'biberon');
+  const lastC = EV.find((e) => e.t === 'couche');
+  const live = ongoingSleep();
+  const lastS = EV.find((e) => e.t === 'dodo' && e.end);
+  let sleep;
+  if (live) sleep = `<button class="card sleep live" data-act="sleep"><span class="lbl">${ICONS.dodo}Dort</span><span class="big">${durShort(now - live.at)}</span><span class="cap">depuis ${hm(live.at)}</span><span class="pill">Réveil</span></button>`;
+  else if (lastS) sleep = `<button class="card sleep" data-act="sleep"><span class="lbl">${ICONS.dodo}Éveillé</span><span class="big">${durShort(now - lastS.end)}</span><span class="cap">dernier dodo ${dur(lastS.end - lastS.at)}</span><span class="pill">+ Dodo</span></button>`;
+  else sleep = `<button class="card sleep" data-act="sleep"><span class="lbl">${ICONS.dodo}Dodo</span><span class="big">—</span><span class="cap">Rien noté</span><span class="pill">+ Dodo</span></button>`;
+  $('#now').innerHTML =
+    `<button class="card milk" data-add="biberon"><span class="lbl">${ICONS.biberon}Biberon</span><span class="big">${lastB ? durShort(now - lastB.at) : '—'}</span><span class="cap">${lastB ? `${lastB.ml || '?'} ml à ${hm(lastB.at)}` : 'Rien noté'}</span><span class="pill">+ Biberon</span></button>` +
+    sleep +
+    `<button class="card diaper" data-add="couche"><span class="lbl">${ICONS.couche}Couche</span><span class="big">${lastC ? durShort(now - lastC.at) : '—'}</span><span class="cap">${lastC ? esc(COUCHE[lastC.couche] || '') + ' à ' + hm(lastC.at) : 'Rien noté'}</span><span class="pill">+ Couche</span></button>`;
+
+  const tot = totals(t0, addDays(t0, 1), now);
+  $('#stats').innerHTML =
+    `<div class="stat"><b>${tot.ml} ml</b><span>${tot.nb} biberon${tot.nb > 1 ? 's' : ''}</span></div>` +
+    `<div class="stat"><b>${tot.sleep ? durShort(tot.sleep) : '0 min'}</b><span>de sommeil</span></div>` +
+    `<div class="stat"><b>${tot.couches}</b><span>${tot.pipi} pipi · ${tot.caca} caca</span></div>`;
+
+  const from = addDays(t0, -(S.journalDays - 1));
+  const list = EV.filter((e) => e.at >= from);
+  $('#journal').innerHTML = list.length ? groupByDay(list).map(([d, evs]) => {
+    const st = totals(d, addDays(d, 1), now);
+    return `<div class="day"><h3><span>${esc(dayLabel(d))}</span><small>${st.ml} ml · ${durShort(st.sleep)} dodo · ${st.couches} couche${st.couches > 1 ? 's' : ''}</small></h3><div class="list">${evs.map((e) => rowHtml(e, now)).join('')}</div></div>`;
+  }).join('') : `<div class="empty">Rien de noté ces derniers jours. Touchez <b>+ Biberon</b>, <b>+ Dodo</b> ou <b>+ Couche</b> ci-dessus pour commencer.</div>`;
+  const oldest = EV.length ? EV[EV.length - 1].at : now;
+  $('#more-journal').hidden = oldest >= from;
+}
+function groupByDay(list) {
+  const g = new Map();
+  for (const e of list) { const d = sod(e.at); if (!g.has(d)) g.set(d, []); g.get(d).push(e); }
+  return [...g];
+}
+function rowHtml(e, now) {
+  let t = '', s = [], hs = '';
+  if (e.t === 'biberon') { t = `Biberon · ${e.ml || '?'} ml`; if (e.lait) s.push(LAIT[e.lait]); }
+  else if (e.t === 'dodo') {
+    if (e.end) { t = `Dodo · ${dur(e.end - e.at)}`; hs = '→ ' + hm(e.end); }
+    else { t = `Dodo · <span class="live-tag">en cours</span>`; hs = dur(now - e.at); }
+  } else {
+    t = `Couche · ${esc((COUCHE[e.couche] || '').toLowerCase())}`;
+    if (e.couche !== 'pipi') {
+      const a = [];
+      if (e.couleur && COULEURS[e.couleur]) a.push(`<span class="dot" style="background:${COULEURS[e.couleur][1]}"></span>${COULEURS[e.couleur][0]}`);
+      if (e.consistance) a.push(CONSIST[e.consistance] || '');
+      if (e.quantite) a.push('quantité ' + (QTE[e.quantite] || '').toLowerCase());
+      if (a.length) s.push(a.join(' · '));
+      if (ALERTES[e.couleur]) t += '<span class="flag">À signaler</span>';
+    }
+  }
+  if (e.note) s.push(esc(e.note));
+  const by = whoName(e.by); if (by) s.push('par ' + esc(by));
+  return `<button class="row" data-ev="${esc(e.id)}"><span class="ico ${CLS[e.t]}">${ICONS[e.t]}</span><span><span class="t">${t}</span>${s.length ? `<span class="s">${s.join(' · ')}</span>` : ''}</span><span class="h">${hm(e.at)}${hs ? `<small>${hs}</small>` : ''}</span></button>`;
+}
+
+/* ----- Graphiques SVG ----- */
+function svgChart({ x0, x1, y0, y1, xTicks, yTicks, draw, h = 210 }) {
+  const W = 340, H = h, L = 38, R = 10, T = 10, B = 22;
+  const sx = (v) => L + (v - x0) / ((x1 - x0) || 1) * (W - L - R);
+  const sy = (v) => T + (1 - (v - y0) / ((y1 - y0) || 1)) * (H - T - B);
+  let g = '';
+  for (const t of yTicks) { const y = sy(t.v).toFixed(1); g += `<line class="grid" x1="${L}" x2="${W - R}" y1="${y}" y2="${y}"/><text class="tk" x="${L - 6}" y="${(+y + 3.5).toFixed(1)}" text-anchor="end">${t.label}</text>`; }
+  for (const t of xTicks) g += `<text class="tk" x="${sx(t.v).toFixed(1)}" y="${H - 6}" text-anchor="middle">${t.label}</text>`;
+  return `<svg class="chart" viewBox="0 0 ${W} ${H}" role="img">${g}${draw(sx, sy, { W, H, L, R, T, B })}</svg>`;
+}
+function niceStep(range, target) {
+  const raw = range / target, p = Math.pow(10, Math.floor(Math.log10(raw))), n = raw / p;
+  return (n < 1.5 ? 1 : n < 3 ? 2 : n < 7 ? 5 : 10) * p;
+}
+function ticksFor(a, b, target, fmt) { const st = niceStep(b - a, target); const out = []; for (let v = Math.ceil(a / st) * st; v <= b + 1e-9; v += st) out.push({ v, label: fmt(v) }); return out; }
+
+/* ----- Biberons ----- */
+function renderBib(now) {
+  const t0 = sod(now);
+  const bottles = EV.filter((e) => e.t === 'biberon');
+  const w = weightAt(now);
+  const last24 = bottles.filter((e) => e.at > now - DAY).reduce((s, e) => s + (Number(e.ml) || 0), 0);
+  const n24 = bottles.filter((e) => e.at > now - DAY).length;
+  const am = ageMonths(now);
+  let vh;
+  if (!w) {
+    vh = `<div class="head"><div><h2>Dernières 24 h</h2><div class="big">${last24} <small>ml · ${n24} biberon${n24 > 1 ? 's' : ''}</small></div></div></div>
+      <p class="hint">Ajoutez un poids dans l'onglet <b>Croissance</b> pour comparer la quantité de lait au repère adapté à son poids.</p>`;
+  } else {
+    const tgt = appert(w.v), ratio = last24 / tgt, young = bottles.length && bottles[bottles.length - 1].at > now - DAY;
+    const vd = young ? { cls: 'na', txt: 'Moins de 24 h de données' } : verdictOf(ratio);
+    const max = Math.max(tgt * 1.5, last24 * 1.05);
+    const age = Math.round((now - w.ref) / DAY);
+    vh = `<div class="head"><div><h2>Dernières 24 h</h2><div class="big">${last24} <small>ml · ${n24} biberon${n24 > 1 ? 's' : ''}</small></div></div><span class="badge ${vd.cls}">${vd.txt}</span></div>
+      <div class="gauge"><span class="zone" style="left:${tgt * 0.85 / max * 100}%;width:${tgt * 0.3 / max * 100}%"></span><span class="bar" style="width:${Math.min(100, last24 / max * 100)}%"></span><span class="tgt" style="left:${tgt / max * 100}%"></span></div>
+      <div class="gauge-l"><span>0</span><span>Repère ${tgt} ml (zone ${Math.round(tgt * 0.85)}–${Math.round(tgt * 1.15)})</span></div>
+      <p class="hint">Repère selon la règle d'Appert : poids en g ÷ 10 + 250, soit ${tgt} ml/jour pour ${fr(w.v, 2)} kg${age > 14 ? ` (poids d'il y a ${age} jours : pensez à le mettre à jour)` : ''}. ${Math.round(last24 / w.v)} ml/kg sur 24 h.${am != null && (am < 1 || am > 6) ? ' Cette règle s\'applique surtout entre 1 et 6 mois.' : ''} C'est un ordre de grandeur : l'appétit varie d'un jour à l'autre, la courbe de poids reste le meilleur indicateur. En cas de doute, parlez-en au pédiatre.</p>`;
+  }
+  $('#bib-verdict').innerHTML = vh;
+
+  // KPI sur les 7 derniers jours complets
+  const a7 = addDays(t0, -7), b7 = t0;
+  const b7l = bottles.filter((e) => e.at >= a7 && e.at < b7);
+  const daysWith = new Set(b7l.map((e) => sod(e.at))).size || 0;
+  const sum7 = b7l.reduce((s, e) => s + (Number(e.ml) || 0), 0);
+  const asc = bottles.filter((e) => e.at >= a7).slice().sort((x, y) => x.at - y.at);
+  let gaps = []; for (let i = 1; i < asc.length; i++) gaps.push(asc[i].at - asc[i - 1].at);
+  const gap = gaps.length ? gaps.reduce((s, g) => s + g, 0) / gaps.length : null;
+  $('#bib-kpis').innerHTML =
+    `<div class="kpi"><b>${daysWith ? Math.round(sum7 / daysWith) + ' ml' : '—'}</b><span>par jour, moyenne 7 j</span></div>` +
+    `<div class="kpi"><b>${b7l.length ? Math.round(sum7 / b7l.length) + ' ml' : '—'}</b><span>par biberon, moyenne 7 j</span></div>` +
+    `<div class="kpi"><b>${daysWith ? fr(b7l.length / daysWith, 1) : '—'}</b><span>biberons par jour</span></div>` +
+    `<div class="kpi"><b>${gap ? durShort(gap) : '—'}</b><span>entre deux biberons</span></div>`;
+
+  // Graphique par jour
+  $('#bib-range').innerHTML = [['7', '7 j'], ['14', '14 j'], ['30', '30 j'], ['all', 'Tout']].map(([v, l]) => `<button data-bibrange="${v}" aria-pressed="${S.bibRange === v}">${l}</button>`).join('');
+  const first = bottles.length ? sod(bottles[bottles.length - 1].at) : t0;
+  const nd = S.bibRange === 'all' ? Math.max(7, Math.round((t0 - first) / DAY) + 1) : Number(S.bibRange);
+  const ds = []; for (let i = nd - 1; i >= 0; i--) ds.push(addDays(t0, -i));
+  const per = ds.map((d) => { const l = bottles.filter((e) => e.at >= d && e.at < addDays(d, 1)); const ml = l.reduce((s, e) => s + (Number(e.ml) || 0), 0); const wt = weightAt(d + DAY / 2); return { d, ml, n: l.length, tgt: wt ? appert(wt.v) : null }; });
+  const ymax = Math.max(400, ...per.map((p) => p.ml), ...per.map((p) => (p.tgt || 0) * 1.1));
+  const yTop = Math.ceil(ymax / 100) * 100;
+  const step = Math.max(1, Math.ceil(nd / 6));
+  $('#bib-chart').innerHTML = bottles.length ? svgChart({
+    x0: -0.5, x1: nd - 0.5, y0: 0, y1: yTop,
+    yTicks: ticksFor(0, yTop, 4, (v) => v),
+    xTicks: per.map((p, i) => ({ v: i, label: dShort(p.d) })).filter((t, i) => (nd - 1 - i) % step === 0),
+    draw: (sx, sy) => {
+      const bw = Math.max(2, (sx(1) - sx(0)) * 0.62);
+      let o = per.map((p, i) => p.ml ? `<rect x="${(sx(i) - bw / 2).toFixed(1)}" y="${sy(p.ml).toFixed(1)}" width="${bw.toFixed(1)}" height="${(sy(0) - sy(p.ml)).toFixed(1)}" rx="${Math.min(4, bw / 3).toFixed(1)}" fill="var(--milk)" opacity="${p.d === t0 ? 0.45 : 1}"><title>${dShort(p.d)} : ${p.ml} ml</title></rect>` : '').join('');
+      const pts = per.map((p, i) => p.tgt ? `${sx(i).toFixed(1)},${sy(p.tgt).toFixed(1)}` : null).filter(Boolean);
+      if (pts.length) o += `<polyline points="${pts.join(' ')}" fill="none" stroke="var(--fg)" stroke-width="1.6" stroke-dasharray="4 3"/>`;
+      return o;
+    }
+  }) : `<div class="empty">Les biberons notés apparaîtront ici.</div>`;
+
+  const avg = per.filter((p) => p.n).map((p, i) => ({ i: per.indexOf(p), v: p.ml / p.n }));
+  $('#bib-chart2').innerHTML = avg.length ? (() => {
+    const top = Math.ceil(Math.max(60, ...avg.map((a) => a.v)) * 1.15 / 20) * 20;
+    return svgChart({
+      h: 170, x0: -0.5, x1: nd - 0.5, y0: 0, y1: top,
+      yTicks: ticksFor(0, top, 3, (v) => v),
+      xTicks: per.map((p, i) => ({ v: i, label: dShort(p.d) })).filter((t, i) => (nd - 1 - i) % step === 0),
+      draw: (sx, sy) => `<polyline points="${avg.map((a) => sx(a.i).toFixed(1) + ',' + sy(a.v).toFixed(1)).join(' ')}" fill="none" stroke="var(--milk)" stroke-width="2.2" stroke-linejoin="round"/>` +
+        avg.map((a, k) => `<circle cx="${sx(a.i).toFixed(1)}" cy="${sy(a.v).toFixed(1)}" r="${k === avg.length - 1 ? 4.5 : 2.6}" fill="var(--milk)"><title>${dShort(per[a.i].d)} : ${Math.round(a.v)} ml</title></circle>`).join('')
+    });
+  })() : `<div class="empty">Pas encore de données.</div>`;
+
+  // Historique
+  const from = addDays(t0, -(S.bibDays - 1));
+  const hist = bottles.filter((e) => e.at >= from);
+  $('#bib-hist').innerHTML = hist.length ? groupByDay(hist).map(([d, l]) => {
+    const ml = l.reduce((s, e) => s + (Number(e.ml) || 0), 0);
+    const wt = weightAt(d + DAY / 2);
+    const vd = wt && d !== t0 ? verdictOf(ml / appert(wt.v)) : null;
+    return `<div class="day"><h3><span>${esc(dayLabel(d))}</span><small>${ml} ml · ${l.length} bib.${vd ? ` <span class="badge ${vd.cls}">${Math.round(ml / appert(wt.v) * 100)} %</span>` : ''}</small></h3><div class="list">${l.map((e) => rowHtml(e, now)).join('')}</div></div>`;
+  }).join('') : `<div class="empty">Aucun biberon sur la période.</div>`;
+  $('#more-bib').hidden = !bottles.length || bottles[bottles.length - 1].at >= from;
+}
+
+/* ----- Croissance ----- */
+function renderGrowth(now) {
+  const b = birthMs();
+  $('#m-cards').innerHTML = Object.keys(KIND).map((k) => {
+    const pts = MS.filter((m) => m[k]);
+    const last = pts[pts.length - 1];
+    if (!last) return `<div class="mcard"><div class="lbl">${KIND[k].label}</div><div class="big">—</div><div class="cap">Aucune mesure</div></div>`;
+    const am = ageMonths(keyMs(last.date));
+    let pct = '';
+    if (am != null && am >= 0 && am <= 24) { const p = cdf(zOf(k, am, last[k])) * 100; pct = `<div class="pct">${pctLabel(p)} OMS</div>`; }
+    let extra = '';
+    if (k === 'poids' && pts.length > 1) {
+      const prev = pts[pts.length - 2]; const dd = (keyMs(last.date) - keyMs(prev.date)) / DAY;
+      if (dd > 0) extra = `<div class="cap">${(last.poids - prev.poids) >= 0 ? '+' : ''}${Math.round((last.poids - prev.poids) * 1000 / dd)} g/jour</div>`;
+    }
+    return `<div class="mcard"><div class="lbl">${KIND[k].label}</div><div class="big">${fr(last[k], k === 'poids' ? 2 : 1)} ${KIND[k].unit}</div><div class="cap">le ${dShort(keyMs(last.date))}</div>${pct}${extra}</div>`;
+  }).join('');
+
+  $('#g-kind').innerHTML = Object.keys(KIND).map((k) => `<button data-gkind="${k}" aria-pressed="${S.growth === k}">${KIND[k].long || KIND[k].label}</button>`).join('');
+  const k = S.growth;
+  const pts = MS.filter((m) => m[k]).map((m) => ({ x: ageMonths(keyMs(m.date)), v: m[k], date: m.date })).filter((p) => p.x != null && p.x >= 0 && p.x <= 24);
+  if (b == null) {
+    $('#g-chart').innerHTML = `<div class="empty">Renseignez la date de naissance dans les réglages (roue en haut à droite) pour afficher les courbes.</div>`;
+    $('#g-note').textContent = '';
+  } else {
+    const ageNow = Math.max(0, ageMonths(now));
+    const xMax = Math.min(24, Math.max(4, Math.ceil(Math.max(ageNow, ...pts.map((p) => p.x)) + 1)));
+    const yLo = Math.min(valAt(k, 0, -2.2), ...pts.map((p) => p.v));
+    const yHi = Math.max(valAt(k, xMax, 2.2), ...pts.map((p) => p.v));
+    const padY = (yHi - yLo) * 0.04;
+    const y0 = Math.floor(yLo - padY), y1 = Math.ceil(yHi + padY);
+    const xs = []; for (let x = 0; x <= xMax + 1e-9; x += xMax / 60) xs.push(x);
+    const curve = (z, sx, sy) => xs.map((x) => sx(x).toFixed(1) + ',' + sy(valAt(k, x, z)).toFixed(1));
+    $('#g-chart').innerHTML = svgChart({
+      h: 240, x0: 0, x1: xMax, y0, y1,
+      yTicks: ticksFor(y0, y1, 5, (v) => fr(v, 1)),
+      xTicks: ticksFor(0, xMax, Math.min(xMax, 8), (v) => v + (v === 0 ? '' : ' m')).map((t) => ({ ...t, label: t.v === 0 ? 'naiss.' : t.label })),
+      draw: (sx, sy) => {
+        const band = (za, zb, fill) => { const up = curve(zb, sx, sy), lo = curve(za, sx, sy).reverse(); return `<polygon points="${up.concat(lo).join(' ')}" fill="${fill}"/>`; };
+        let o = band(PZ[0][1], PZ[4][1], 'var(--band1)') + band(PZ[1][1], PZ[3][1], 'var(--band2)');
+        o += `<polyline points="${curve(0, sx, sy).join(' ')}" fill="none" stroke="var(--grow)" stroke-width="1.2" stroke-dasharray="3 3" opacity=".8"/>`;
+        const lx = sx(xMax) - 2;
+        for (const [p, z] of [PZ[0], PZ[2], PZ[4]]) o += `<text class="tk" x="${lx}" y="${(sy(valAt(k, xMax, z)) - 3).toFixed(1)}" text-anchor="end">P${p}</text>`;
+        if (pts.length > 1) o += `<polyline points="${pts.map((p) => sx(p.x).toFixed(1) + ',' + sy(p.v).toFixed(1)).join(' ')}" fill="none" stroke="var(--fg)" stroke-width="2" stroke-linejoin="round"/>`;
+        o += pts.map((p, i) => `<circle cx="${sx(p.x).toFixed(1)}" cy="${sy(p.v).toFixed(1)}" r="${i === pts.length - 1 ? 4.5 : 3.2}" fill="var(--fg)" stroke="var(--surface)" stroke-width="1.5"><title>${dShort(keyMs(p.date))} : ${fr(p.v, 2)} ${KIND[k].unit}</title></circle>`).join('');
+        return o;
+      }
+    });
+    $('#g-note').textContent = `${KIND[k].long || KIND[k].label} (${KIND[k].unit}) selon l'âge. Bandes : courbes OMS garçons, P3–P97 (clair) et P15–P85 (foncé), pointillés = médiane. Le carnet de santé utilise les courbes françaises 2018, très proches.` + (pts.length ? '' : ' Ajoutez une mesure pour voir le point de Raphaël.');
+  }
+
+  $('#m-list').innerHTML = MS.length ? `<div class="list">${MS.slice().reverse().map((m) => {
+    const v = Object.keys(KIND).filter((k2) => m[k2]).map((k2) => `${KIND[k2].label} ${fr(m[k2], k2 === 'poids' ? 3 : 1)} ${KIND[k2].unit}`).join(' · ');
+    const ag = ageText(keyMs(m.date));
+    return `<button class="row" data-mes="${esc(m.id)}"><span class="ico grow">${ICONS.mesure}</span><span><span class="t">${esc(v)}</span><span class="s">${ag ? esc(ag) : ''}${m.note ? (ag ? ' · ' : '') + esc(m.note) : ''}</span></span><span class="h">${dShort(keyMs(m.date))}<small>${new Date(keyMs(m.date)).getFullYear()}</small></span></button>`;
+  }).join('')}</div>` : `<div class="empty">Notez ici les mesures du pédiatre ou du carnet de santé, y compris celles de naissance.</div>`;
+}
+
+/* ----- Export ----- */
+const RANGES = [['24h', '24 h'], ['72h', '72 h'], ['7j', '1 semaine'], ['1m', '1 mois'], ['all', 'Tout']];
+function rangeFrom(r, now) {
+  if (r === '24h') return now - DAY;
+  if (r === '72h') return now - 3 * DAY;
+  if (r === '7j') return now - 7 * DAY;
+  if (r === '1m') { const d = new Date(now); d.setMonth(d.getMonth() - 1); return d.getTime(); }
+  const firstE = EV.length ? EV[EV.length - 1].at : now;
+  const firstM = MS.length ? keyMs(MS[0].date) : now;
+  return Math.min(firstE, firstM, now);
+}
+function exportData(now) {
+  const from = rangeFrom(S.xRange, now);
+  const evs = EV.filter((e) => S.xIncl[e.t] && (e.at >= from || (e.t === 'dodo' && (e.end || now) >= from))).slice().sort((a, b) => a.at - b.at);
+  const mes = S.xIncl.mesure ? MS.filter((m) => keyMs(m.date) + DAY > from) : [];
+  return { from, evs, mes };
+}
+function renderExport(now) {
+  $('#x-range').innerHTML = RANGES.map(([v, l]) => `<button class="chip" data-xrange="${v}" aria-pressed="${S.xRange === v}">${l}</button>`).join('');
+  $('#x-incl').innerHTML = [['biberon', 'Biberons'], ['dodo', 'Dodos'], ['couche', 'Couches'], ['mesure', 'Mesures']].map(([v, l]) => `<label class="check"><input type="checkbox" id="xi-${v}" data-xincl="${v}" ${S.xIncl[v] ? 'checked' : ''}> ${l}</label>`).join('');
+  const { from, evs, mes } = exportData(now);
+  const tot = totals(from, now + 1, now);
+  const nDays = Math.max(1, (now - from) / DAY);
+  const items = [];
+  if (S.xIncl.biberon) items.push(`<div class="kpi"><b>${tot.ml} ml</b><span>${tot.nb} biberons · ${Math.round(tot.ml / nDays)} ml/jour en moyenne</span></div>`);
+  if (S.xIncl.dodo) items.push(`<div class="kpi"><b>${durShort(tot.sleep)}</b><span>de sommeil · ${durShort(tot.sleep / nDays)} par jour</span></div>`);
+  if (S.xIncl.couche) items.push(`<div class="kpi"><b>${tot.couches} couches</b><span>${tot.pipi} pipi · ${tot.caca} caca${tot.alerts ? ` · ${tot.alerts} à signaler` : ''}</span></div>`);
+  if (S.xIncl.mesure) items.push(`<div class="kpi"><b>${mes.length} mesure${mes.length > 1 ? 's' : ''}</b><span>poids, taille, crâne</span></div>`);
+  $('#x-preview').innerHTML = `<h2>Aperçu · du ${dShort(from)} ${hm(from)} à maintenant</h2>` +
+    (items.length ? `<div class="kpis">${items.join('')}</div>` : '<p class="hint">Cochez au moins un type de données.</p>') +
+    `<p class="fine">${evs.length + mes.length} ligne${evs.length + mes.length > 1 ? 's' : ''} seront exportées.</p>`;
+  $('#x-csv').disabled = !(evs.length + mes.length);
+}
+function csvCell(v) { const s = v == null ? '' : String(v); return /[;"\n\r]/.test(s) ? '"' + s.replace(/"/g, '""') + '"' : s; }
+function buildCsv(now) {
+  const { evs, mes } = exportData(now);
+  const head = ['Date', 'Heure', 'Type', 'Quantité (ml)', 'Lait', 'Fin du dodo', 'Durée dodo (min)', 'Couche', 'Couleur selles', 'Consistance', 'Quantité selles', 'Poids (kg)', 'Taille (cm)', 'Périmètre crânien (cm)', 'Note', 'Saisi par'];
+  const rows = [];
+  const dfr = (ms) => new Date(ms).toLocaleDateString('fr-FR');
+  const dec = (v, d) => v == null || v === '' ? '' : Number(v).toFixed(d).replace('.', ',');
+  for (const e of evs) rows.push({ ms: e.at, r: [dfr(e.at), hm(e.at), e.t === 'biberon' ? 'Biberon' : e.t === 'dodo' ? 'Dodo' : 'Couche', e.t === 'biberon' ? e.ml : '', e.t === 'biberon' ? (LAIT[e.lait] || '') : '', e.end ? dfr(e.end) + ' ' + hm(e.end) : (e.t === 'dodo' ? 'en cours' : ''), e.t === 'dodo' && e.end ? Math.round((e.end - e.at) / 60000) : '', e.t === 'couche' ? COUCHE[e.couche] || '' : '', e.couleur ? COULEURS[e.couleur][0] : '', e.consistance ? CONSIST[e.consistance] : '', e.quantite ? QTE[e.quantite] : '', '', '', '', e.note || '', whoName(e.by)] });
+  for (const m of mes) rows.push({ ms: keyMs(m.date), r: [dfr(keyMs(m.date)), '', 'Mesure', '', '', '', '', '', '', '', '', dec(m.poids, 3), dec(m.taille, 1), dec(m.pc, 1), m.note || '', whoName(m.by)] });
+  rows.sort((a, b) => a.ms - b.ms);
+  return '﻿' + [head, ...rows.map((x) => x.r)].map((r) => r.map(csvCell).join(';')).join('\r\n');
+}
+async function shareFile(name, content, type) {
+  const blob = new Blob([content], { type });
+  let file = null;
+  try { file = new File([blob], name, { type }); } catch {}
+  if (file && navigator.canShare && navigator.canShare({ files: [file] })) {
+    try { await navigator.share({ files: [file], title: name }); return; }
+    catch (e) { if (e && e.name === 'AbortError') return; }
+  }
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a'); a.href = url; a.download = name; document.body.appendChild(a); a.click(); a.remove();
+  setTimeout(() => URL.revokeObjectURL(url), 10000);
+}
+function openReport(now) {
+  const { from, evs, mes } = exportData(now);
+  const name = S.config.prenom || 'Raphaël';
+  const tot = totals(from, now + 1, now);
+  const nDays = Math.max(1, (now - from) / DAY);
+  const dlist = []; for (let d = sod(from); d <= sod(now); d = addDays(d, 1)) dlist.push(d);
+  const rowsD = dlist.slice().reverse().map((d) => {
+    const a = Math.max(d, from), b = Math.min(addDays(d, 1), now + 1);
+    const t = totals(a, b, now);
+    if (!t.nb && !t.sleep && !t.couches) return '';
+    return `<tr><td>${esc(dayLabel(d))}</td><td>${S.xIncl.biberon ? t.nb : ''}</td><td>${S.xIncl.biberon ? t.ml + ' ml' : ''}</td><td>${S.xIncl.dodo ? durShort(t.sleep) : ''}</td><td>${S.xIncl.couche ? t.pipi : ''}</td><td>${S.xIncl.couche ? t.caca : ''}</td></tr>`;
+  }).join('');
+  const stools = evs.filter((e) => e.t === 'couche' && e.couche !== 'pipi' && (e.couleur || e.consistance));
+  const lastBy = {}; for (const k of Object.keys(KIND)) { const p = MS.filter((m) => m[k]); lastBy[k] = p[p.length - 1]; }
+  const meas = Object.keys(KIND).map((k) => {
+    const m = lastBy[k]; if (!m) return `<div><span>${KIND[k].long || KIND[k].label}</span><b>—</b></div>`;
+    const am = ageMonths(keyMs(m.date)); const p = am != null && am >= 0 && am <= 24 ? ' · ' + pctLabel(cdf(zOf(k, am, m[k])) * 100) + ' OMS' : '';
+    return `<div><span>${KIND[k].long || KIND[k].label}</span><b>${fr(m[k], k === 'poids' ? 3 : 1)} ${KIND[k].unit}</b><span>le ${dShort(keyMs(m.date))}${p}</span></div>`;
+  }).join('');
+  const w = weightAt(now);
+  $('#report').innerHTML = `
+    <div class="bar"><button id="r-close">Fermer</button><button class="go" id="r-print">Imprimer / PDF</button></div>
+    <div class="doc">
+      <h1>${esc(name)} · résumé</h1>
+      <p class="sub">${S.config.naissance ? 'Né le ' + dLong(birthMs()) + ' · ' + esc(ageText(now)) + ' · ' : ''}du ${dLong(from)} ${hm(from)} au ${dLong(now)} ${hm(now)}</p>
+      <div class="kv">
+        ${S.xIncl.biberon ? `<div><span>Lait</span><b>${Math.round(tot.ml / nDays)} ml/jour</b><span>${tot.nb} biberons, ${tot.nb ? Math.round(tot.ml / tot.nb) : 0} ml en moyenne${w ? ` · repère ${appert(w.v)} ml/j` : ''}</span></div>` : ''}
+        ${S.xIncl.dodo ? `<div><span>Sommeil</span><b>${durShort(tot.sleep / nDays)} /jour</b><span>${durShort(tot.sleep)} au total</span></div>` : ''}
+        ${S.xIncl.couche ? `<div><span>Couches</span><b>${fr(tot.couches / nDays, 1)} /jour</b><span>${tot.pipi} pipi · ${tot.caca} caca</span></div>` : ''}
+      </div>
+      ${S.xIncl.mesure ? `<h2>Dernières mesures</h2><div class="kv">${meas}</div>` : ''}
+      <h2>Par jour</h2>
+      <div class="tablewrap"><table><thead><tr><th>Jour</th><th>Biberons</th><th>Lait</th><th>Sommeil</th><th>Pipi</th><th>Caca</th></tr></thead><tbody>${rowsD || '<tr><td colspan="6">Aucune donnée</td></tr>'}</tbody></table></div>
+      ${S.xIncl.couche && stools.length ? `<h2>Aspect des selles</h2><div class="tablewrap"><table><thead><tr><th>Date</th><th>Couleur</th><th>Consistance</th><th>Quantité</th><th>Note</th></tr></thead><tbody>${stools.slice().reverse().map((e) => `<tr><td>${dShort(e.at)} ${hm(e.at)}</td><td>${e.couleur ? COULEURS[e.couleur][0] + (ALERTES[e.couleur] ? ' ⚠︎' : '') : ''}</td><td>${CONSIST[e.consistance] || ''}</td><td>${QTE[e.quantite] || ''}</td><td style="white-space:normal;text-align:left">${esc(e.note || '')}</td></tr>`).join('')}</tbody></table></div>` : ''}
+      ${S.xIncl.mesure && mes.length ? `<h2>Mesures de la période</h2><div class="tablewrap"><table><thead><tr><th>Date</th><th>Poids</th><th>Taille</th><th>Crâne</th></tr></thead><tbody>${mes.slice().reverse().map((m) => `<tr><td>${dShort(keyMs(m.date))}</td><td>${m.poids ? fr(m.poids, 3) + ' kg' : ''}</td><td>${m.taille ? fr(m.taille, 1) + ' cm' : ''}</td><td>${m.pc ? fr(m.pc, 1) + ' cm' : ''}</td></tr>`).join('')}</tbody></table></div>` : ''}
+      <p class="sub" style="margin-top:16px">Généré par le Carnet de ${esc(name)} le ${dLong(now)}.</p>
+    </div>`;
+  $('#report').hidden = false;
+  $('#r-close').onclick = () => { $('#report').hidden = true; };
+  $('#r-print').onclick = () => { try { window.print(); } catch { toast("L'impression n'est pas disponible ici : faites une capture d'écran ou utilisez le CSV."); } };
+}
+
+/* ============================================================
+   FEUILLES DE SAISIE
+   ============================================================ */
+let current = null;
+function openSheet(type, item) {
+  current = { type, item: item || null };
+  const now = Date.now(), ed = !!item;
+  let title = '', body = '', btnCls = '', save = ed ? 'Enregistrer' : 'Ajouter';
+  if (type === 'biberon') {
+    const lastB = EV.find((e) => e.t === 'biberon');
+    const ml = item ? item.ml : (lastB && lastB.ml) || Number(lsGet('ml')) || 120;
+    const lait = item ? item.lait : (lastB && lastB.lait) || 'infantile';
+    title = 'Biberon'; btnCls = 'milk';
+    body = `
+      <div class="field"><span class="lab">Quantité bue (ml)</span>
+        <div class="stepper"><button type="button" data-step="-10" aria-label="Moins 10 ml">−</button><input class="inp" id="f-ml" type="number" inputmode="numeric" min="0" max="400" step="5" value="${esc(ml)}" aria-label="Quantité en ml"><button type="button" data-step="10" aria-label="Plus 10 ml">+</button></div>
+        <div class="chips">${[60, 90, 120, 150, 180, 210, 240].map((v) => `<button type="button" class="chip" data-ml="${v}">${v}</button>`).join('')}</div>
+      </div>
+      <div class="field"><span class="lab">Lait</span><div class="seg milk">${Object.keys(LAIT).map((v) => `<input type="radio" name="lait" id="lait-${v}" value="${v}" ${lait === v ? 'checked' : ''}><label for="lait-${v}">${v === 'infantile' ? 'Infantile' : 'Maternel'}</label>`).join('')}</div></div>
+      <div class="field"><label for="f-at">Heure</label><input class="inp" id="f-at" type="datetime-local" value="${toInput(item ? item.at : now)}"></div>`;
+  } else if (type === 'dodo') {
+    const ongoing = item ? !item.end : true;
+    title = 'Dodo'; btnCls = 'sleep'; save = ed ? 'Enregistrer' : 'Noter le dodo';
+    body = `
+      <div class="field"><label for="f-at">Endormi à</label><input class="inp" id="f-at" type="datetime-local" value="${toInput(item ? item.at : now)}"></div>
+      <label class="check"><input type="checkbox" id="f-ongoing" ${ongoing ? 'checked' : ''}> Dort encore</label>
+      <div class="field" id="end-wrap" ${ongoing ? 'hidden' : ''}><label for="f-end">Réveillé à</label><input class="inp" id="f-end" type="datetime-local" value="${toInput(item && item.end ? item.end : now)}"></div>`;
+  } else if (type === 'couche') {
+    const c = item ? item.couche : '';
+    title = 'Couche'; btnCls = 'diaper';
+    body = `
+      <div class="field"><span class="lab">Contenu</span><div class="seg diaper">${Object.keys(COUCHE).map((v) => `<input type="radio" name="couche" id="couche-${v}" value="${v}" ${c === v ? 'checked' : ''}><label for="couche-${v}">${COUCHE[v]}</label>`).join('')}</div></div>
+      <div id="aspect" ${c && c !== 'pipi' ? '' : 'hidden'}>
+        <div class="field"><span class="lab">Couleur</span><div class="seg diaper colors">${Object.keys(COULEURS).map((v) => `<input type="radio" name="couleur" id="coul-${v}" value="${v}" ${item && item.couleur === v ? 'checked' : ''}><label for="coul-${v}"><span class="sw" style="background:${COULEURS[v][1]}"></span>${COULEURS[v][0]}</label>`).join('')}</div></div>
+        <div class="alert" id="f-alert" hidden></div>
+        <div class="field"><span class="lab">Consistance</span><div class="seg diaper">${Object.keys(CONSIST).map((v) => `<input type="radio" name="consistance" id="cons-${v}" value="${v}" ${item && item.consistance === v ? 'checked' : ''}><label for="cons-${v}">${CONSIST[v]}</label>`).join('')}</div></div>
+        <div class="field"><span class="lab">Quantité</span><div class="seg diaper">${Object.keys(QTE).map((v) => `<input type="radio" name="quantite" id="qte-${v}" value="${v}" ${item && item.quantite === v ? 'checked' : ''}><label for="qte-${v}">${QTE[v]}</label>`).join('')}</div></div>
+      </div>
+      <div class="field"><label for="f-at">Heure</label><input class="inp" id="f-at" type="datetime-local" value="${toInput(item ? item.at : now)}"></div>`;
+  } else if (type === 'mesure') {
+    title = 'Mesure'; btnCls = 'grow';
+    body = `
+      <div class="field"><label for="f-date">Date</label><input class="inp" id="f-date" type="date" value="${item ? item.date : dayKey(now)}"></div>
+      <div class="grid3">
+        <div class="field"><label for="f-poids">Poids (kg)</label><input class="inp" id="f-poids" inputmode="decimal" placeholder="5,420" value="${item && item.poids ? fr(item.poids, 3) : ''}"></div>
+        <div class="field"><label for="f-taille">Taille (cm)</label><input class="inp" id="f-taille" inputmode="decimal" placeholder="60,5" value="${item && item.taille ? fr(item.taille, 1) : ''}"></div>
+        <div class="field"><label for="f-pc">Crâne (cm)</label><input class="inp" id="f-pc" inputmode="decimal" placeholder="40,2" value="${item && item.pc ? fr(item.pc, 1) : ''}"></div>
+      </div>
+      <p class="hint" style="margin:-6px 0 14px">Remplissez seulement ce qui a été mesuré. Le poids peut aussi être saisi en grammes (5420).</p>`;
+  } else if (type === 'reglages') {
+    title = 'Réglages'; save = 'Enregistrer';
+    const me = (S.config.parents || {})[pkey(S.me)] || '';
+    body = `
+      <div class="field"><label for="f-prenom">Prénom du bébé</label><input class="inp" id="f-prenom" value="${esc(S.config.prenom || 'Raphaël')}"></div>
+      <div class="field"><label for="f-naiss">Date de naissance</label><input class="inp" id="f-naiss" type="date" value="${esc(S.config.naissance || '')}"></div>
+      <div class="field"><label for="f-moi">Votre prénom</label><input class="inp" id="f-moi" value="${esc(me)}" placeholder="Affiché dans le journal (« par … »)"></div>
+      <p class="hint">${MODE === 'firebase' ? `Synchronisé · connecté en tant que ${esc(S.me || '')}` : 'Mode local : les données restent sur ce téléphone. Ajoutez la configuration Firebase pour synchroniser les deux iPhones.'}<br>Version ${APP_VERSION}</p>`;
+  }
+  $('#sheet').innerHTML = `
+    <div class="grab"></div>
+    <div class="sheet-head"><h4 id="sheet-title">${ed ? 'Modifier · ' : ''}${title}</h4><button class="x" id="sheet-x" type="button" aria-label="Fermer">×</button></div>
+    <form id="sheet-form" novalidate>
+      ${body}
+      ${type !== 'reglages' ? `<div class="field"><label for="f-note">Note</label><textarea class="inp" id="f-note" placeholder="Facultatif">${esc(item ? item.note : '')}</textarea></div>` : ''}
+      <div class="err" id="f-err"></div>
+      <div class="btns">
+        <button class="primary ${btnCls}" id="f-save" type="submit">${save}</button>
+        ${ed ? '<button class="danger" id="f-del" type="button">Supprimer</button>' : ''}
+        ${type === 'reglages' && MODE === 'firebase' ? '<button class="secondary" id="f-logout" type="button">Se déconnecter</button>' : ''}
+      </div>
+    </form>`;
+  $('#scrim').hidden = false; $('#sheet').hidden = false; $('#sheet').scrollTop = 0;
+  wireSheet();
+}
+function closeSheet() { $('#sheet').hidden = true; $('#scrim').hidden = true; current = null; }
+
+function wireSheet() {
+  const sh = $('#sheet');
+  $('#sheet-x').onclick = closeSheet;
+  sh.querySelectorAll('[data-step]').forEach((b) => b.onclick = () => { const i = $('#f-ml'); i.value = Math.max(0, (Number(i.value) || 0) + Number(b.dataset.step)); });
+  sh.querySelectorAll('[data-ml]').forEach((b) => b.onclick = () => { $('#f-ml').value = b.dataset.ml; });
+  const og = $('#f-ongoing'); if (og) og.onchange = () => { $('#end-wrap').hidden = og.checked; };
+  sh.querySelectorAll('input[name="couche"]').forEach((r) => r.onchange = () => { $('#aspect').hidden = r.value === 'pipi'; });
+  const showAlert = () => { const c = sh.querySelector('input[name="couleur"]:checked'); const a = $('#f-alert'); if (!a) return; a.hidden = !(c && ALERTES[c.value]); a.textContent = c && ALERTES[c.value] ? ALERTES[c.value] : ''; };
+  sh.querySelectorAll('input[name="couleur"]').forEach((r) => r.onchange = showAlert); showAlert();
+  const lo = $('#f-logout'); if (lo) lo.onclick = async () => { closeSheet(); try { await FB.U.signOut(FB.auth); } catch {} };
+  const del = $('#f-del');
+  if (del) del.onclick = () => {
+    if (!del.classList.contains('armed')) { del.classList.add('armed'); del.textContent = 'Confirmer la suppression'; return; }
+    const { type, item } = current;
+    closeSheet();
+    if (type === 'mesure') { store.deleteMeasure(item); toast('Mesure supprimée', () => store.putMeasure(item)); }
+    else { store.deleteEvent(item); toast('Entrée supprimée', () => store.putEvent(item)); }
+  };
+  $('#sheet-form').onsubmit = (e) => { e.preventDefault(); submitSheet(); };
+}
+
+function radio(name) { const r = document.querySelector(`#sheet input[name="${name}"]:checked`); return r ? r.value : null; }
+function submitSheet() {
+  const err = $('#f-err'); err.textContent = '';
+  const { type, item: old } = current;
+  const note = $('#f-note') ? $('#f-note').value.trim().slice(0, 300) : '';
+  const by = old ? (old.by || S.me || 'local') : (S.me || 'local');
+  if (type === 'reglages') {
+    const naiss = $('#f-naiss').value;
+    if (naiss && keyMs(naiss) > Date.now()) { err.textContent = 'La date de naissance est dans le futur.'; return; }
+    const p = { prenom: $('#f-prenom').value.trim() || 'Raphaël', naissance: naiss || null };
+    const moi = $('#f-moi').value.trim();
+    if (moi) p.parents = { [pkey(S.me)]: moi.slice(0, 30) };
+    store.saveConfig(p); closeSheet(); toast('Réglages enregistrés'); return;
+  }
+  if (type === 'mesure') {
+    const date = $('#f-date').value;
+    if (!/^\d{4}-\d{2}-\d{2}$/.test(date)) { err.textContent = 'Indiquez la date.'; return; }
+    if (keyMs(date) > Date.now()) { err.textContent = 'La date est dans le futur.'; return; }
+    let poids = num($('#f-poids').value), taille = num($('#f-taille').value), pc = num($('#f-pc').value);
+    if (poids != null && poids > 100) poids = poids / 1000;
+    for (const [k, v] of [['poids', poids], ['taille', taille], ['pc', pc]]) {
+      if (v == null) continue;
+      if (isNaN(v) || v < KIND[k].min || v > KIND[k].max) { err.textContent = `${KIND[k].long || KIND[k].label} : valeur entre ${KIND[k].min} et ${KIND[k].max} ${KIND[k].unit} attendue.`; return; }
+    }
+    if (poids == null && taille == null && pc == null) { err.textContent = 'Renseignez au moins une mesure.'; return; }
+    const m = { id: old ? old.id : newId(), date, poids: poids != null ? Math.round(poids * 1000) / 1000 : null, taille: taille != null ? Math.round(taille * 10) / 10 : null, pc: pc != null ? Math.round(pc * 10) / 10 : null, note, by, ts: Date.now() };
+    store.putMeasure(m); closeSheet(); toast(old ? 'Mesure modifiée' : 'Mesure ajoutée'); return;
+  }
+  const at = fromInput($('#f-at').value);
+  if (!at) { err.textContent = "Indiquez l'heure."; return; }
+  if (at > Date.now() + 5 * 60000) { err.textContent = "L'heure est dans le futur."; return; }
+  const ev = { id: old ? old.id : newId(), t: type, at, end: null, ml: null, lait: null, couche: null, couleur: null, consistance: null, quantite: null, note, by, ts: Date.now() };
+  if (type === 'biberon') {
+    const ml = Math.round(Number($('#f-ml').value));
+    if (!ml || ml < 1 || ml > 400) { err.textContent = 'Indiquez une quantité entre 1 et 400 ml.'; return; }
+    ev.ml = ml; ev.lait = radio('lait'); lsSet('ml', String(ml));
+  } else if (type === 'dodo') {
+    if (!$('#f-ongoing').checked) {
+      const end = fromInput($('#f-end').value);
+      if (!end || end <= at) { err.textContent = "L'heure de réveil doit suivre l'heure d'endormissement."; return; }
+      if (end > Date.now() + 5 * 60000) { err.textContent = "L'heure de réveil est dans le futur."; return; }
+      ev.end = end;
+    } else {
+      const other = ongoingSleep();
+      if (other && (!old || other.id !== old.id)) { err.textContent = "Un dodo est déjà en cours : notez d'abord le réveil."; return; }
+    }
+  } else {
+    ev.couche = radio('couche');
+    if (!ev.couche) { err.textContent = 'Choisissez pipi, caca ou les deux.'; return; }
+    if (ev.couche !== 'pipi') { ev.couleur = radio('couleur'); ev.consistance = radio('consistance'); ev.quantite = radio('quantite'); }
+  }
+  if (old && dayKey(old.at) !== dayKey(ev.at)) store.deleteEvent(old);
+  store.putEvent(ev);
+  closeSheet();
+  if (old) toast('Modifié');
+  else toast(type === 'biberon' ? `Biberon de ${ev.ml} ml noté` : type === 'dodo' ? (ev.end ? 'Dodo noté' : 'Bonne sieste !') : 'Couche notée', () => store.deleteEvent(ev));
+}
+
+/* ---------- Toast ---------- */
+let toastTimer = null;
+function toast(msg, undo) {
+  $('#toast-msg').textContent = msg;
+  const b = $('#toast-btn'); b.hidden = !undo; b.onclick = undo ? () => { hideToast(); undo(); } : null;
+  $('#toast').hidden = false;
+  clearTimeout(toastTimer); toastTimer = setTimeout(hideToast, undo ? 6000 : 3000);
+}
+function hideToast() { $('#toast').hidden = true; }
+
+/* ---------- Événements ---------- */
+document.addEventListener('click', (e) => {
+  const t = e.target.closest('button, [data-add]');
+  if (!t) return;
+  if (t.dataset.tab) { S.tab = t.dataset.tab; lsSet('tab', S.tab); window.scrollTo(0, 0); render(); return; }
+  if (t.dataset.add) { openSheet(t.dataset.add); return; }
+  if (t.dataset.act === 'sleep') {
+    const live = ongoingSleep();
+    if (!live) { openSheet('dodo'); return; }
+    const end = Date.now(), upd = { ...live, end, ts: end };
+    store.putEvent(upd);
+    toast(`Réveil noté · dodo de ${dur(end - live.at)}`, () => store.putEvent({ ...live, end: null }));
+    return;
+  }
+  if (t.dataset.ev) { const ev = EV.find((x) => x.id === t.dataset.ev); if (ev) openSheet(ev.t, ev); return; }
+  if (t.dataset.mes) { const m = MS.find((x) => x.id === t.dataset.mes); if (m) openSheet('mesure', m); return; }
+  if (t.dataset.bibrange) { S.bibRange = t.dataset.bibrange; render(); return; }
+  if (t.dataset.gkind) { S.growth = t.dataset.gkind; render(); return; }
+  if (t.dataset.xrange) { S.xRange = t.dataset.xrange; render(); return; }
+});
+document.addEventListener('change', (e) => { const x = e.target.dataset && e.target.dataset.xincl; if (x) { S.xIncl[x] = e.target.checked; render(); } });
+$('#add-measure').onclick = () => openSheet('mesure');
+$('#btn-settings').onclick = () => openSheet('reglages');
+$('#more-journal').onclick = () => { S.journalDays += 7; render(); };
+$('#more-bib').onclick = () => { S.bibDays += 14; render(); };
+$('#scrim').onclick = closeSheet;
+document.addEventListener('keydown', (e) => { if (e.key === 'Escape') { if (current) closeSheet(); else if (!$('#report').hidden) $('#report').hidden = true; } });
+$('#x-csv').onclick = () => {
+  const now = Date.now();
+  const name = `${(S.config.prenom || 'raphael').toLowerCase().normalize('NFD').replace(/[^a-z0-9]/g, '')}_${S.xRange}_${dayKey(now)}.csv`;
+  shareFile(name, buildCsv(now), 'text/csv');
+};
+$('#x-report').onclick = () => openReport(Date.now());
+setInterval(() => { if (!current) render(); }, 30000);
+document.addEventListener('visibilitychange', () => { if (!document.hidden) render(); });
+
+/* ---------- Démarrage ---------- */
+if ('serviceWorker' in navigator && location.protocol === 'https:') navigator.serviceWorker.register('sw.js').catch(() => {});
+if (MODE === 'firebase') startFirebase();
+else { LocalStore.load(); S.me = 'local'; S.syncKind = 'local'; rebuild(); showApp(); }
+window.__carnet = { S, store, render, buildCsv };
+})();
+</script>
+</body>
+</html>
