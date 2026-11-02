@@ -144,7 +144,10 @@ h2 { font-family: var(--display); font-weight: 600; font-size: 14px; letter-spac
 
 /* Croissance */
 .mcards { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 10px; }
-.mcard { background: var(--surface); border: 1px solid var(--line); border-radius: 16px; padding: 12px 11px; min-width: 0; }
+.mcard { background: var(--surface); border: 1.5px solid var(--line); border-radius: 16px; padding: 12px 11px; min-width: 0; text-align: left; }
+.mcard[aria-pressed="true"] { border-color: var(--grow); background: var(--grow-soft); }
+.mcard:active { transform: scale(.98); }
+.mcard .hint-sel { font-size: 11.5px; color: var(--muted); margin-top: 6px; }
 .mcard .lbl { font-size: 12px; font-weight: 700; text-transform: uppercase; letter-spacing: .05em; color: var(--grow); }
 .mcard .big { font-family: var(--display); font-weight: 700; font-size: 21px; margin-top: 4px; font-variant-numeric: tabular-nums; white-space: nowrap; }
 .mcard .cap { font-size: 12px; color: var(--muted); }
@@ -381,12 +384,12 @@ textarea.inp { min-height: 60px; resize: vertical; }
     <section class="view" id="v-croissance" hidden>
       <div class="mcards" id="m-cards"></div>
       <div class="panel">
-        <div class="panel-h"><div class="segsm" id="g-kind"></div></div>
+        <div class="panel-h"><h2 id="g-title">Courbe</h2></div>
         <div id="g-chart"></div>
         <p class="fine" id="g-note"></p>
       </div>
       <div>
-        <div class="row-h"><h2>Mesures</h2><button class="add-sm grow" id="add-measure">+ Mesure</button></div>
+        <div class="row-h"><h2 id="m-title">Mesures</h2><button class="add-sm grow" id="add-measure">+ Mesure</button></div>
         <div id="m-list"></div>
       </div>
     </section>
@@ -442,7 +445,7 @@ const FIREBASE_CONFIG = {
   appId: "1:440010683437:web:9d81d1297c138baab834a4"
 };
 
-const APP_VERSION = '1.1.1';
+const APP_VERSION = '1.1.2';
 const FB_VER = '10.12.2';
 
 (() => {
@@ -557,6 +560,7 @@ function ageText(ms) {
   const b = birthMs(); if (b == null) return '';
   const days = Math.round((sod(ms) - b) / DAY);
   if (days < 0) return '';
+  if (days === 0) return 'Naissance';
   if (days < 14) return days + (days > 1 ? ' jours' : ' jour');
   if (days < 61) { const w = Math.floor(days / 7), r = days % 7; return w + ' semaines' + (r ? ' et ' + r + ' j' : ''); }
   const B = new Date(b), N = new Date(sod(ms));
@@ -912,24 +916,26 @@ function renderBib(now) {
 }
 
 /* ----- Croissance ----- */
+function growthDelta(k, a, b) {
+  const dd = (keyMs(b.date) - keyMs(a.date)) / DAY;
+  if (dd <= 0) return '';
+  const d = b[k] - a[k];
+  if (k === 'poids') return `${d >= 0 ? '+' : '−'}${Math.round(Math.abs(d) * 1000 / dd)} g/jour`;
+  return `${d >= 0 ? '+' : '−'}${fr(Math.abs(d) / dd * 30.4, 1)} cm/mois`;
+}
+function pctOf(k, m) { const am = ageMonths(keyMs(m.date)); return am != null && am >= 0 && am <= 24 ? pctLabel(cdf(zOf(k, am, m[k])) * 100) : ''; }
 function renderGrowth(now) {
   const b = birthMs();
   $('#m-cards').innerHTML = Object.keys(KIND).map((k) => {
     const pts = MS.filter((m) => m[k]);
     const last = pts[pts.length - 1];
-    if (!last) return `<div class="mcard"><div class="lbl">${KIND[k].label}</div><div class="big">—</div><div class="cap">Aucune mesure</div></div>`;
-    const am = ageMonths(keyMs(last.date));
-    let pct = '';
-    if (am != null && am >= 0 && am <= 24) { const p = cdf(zOf(k, am, last[k])) * 100; pct = `<div class="pct">${pctLabel(p)} OMS</div>`; }
-    let extra = '';
-    if (k === 'poids' && pts.length > 1) {
-      const prev = pts[pts.length - 2]; const dd = (keyMs(last.date) - keyMs(prev.date)) / DAY;
-      if (dd > 0) extra = `<div class="cap">${(last.poids - prev.poids) >= 0 ? '+' : ''}${Math.round((last.poids - prev.poids) * 1000 / dd)} g/jour</div>`;
-    }
-    return `<div class="mcard"><div class="lbl">${KIND[k].label}</div><div class="big">${fr(last[k], k === 'poids' ? 2 : 1)} ${KIND[k].unit}</div><div class="cap">le ${dShort(keyMs(last.date))}</div>${pct}${extra}</div>`;
+    const sel = S.growth === k;
+    if (!last) return `<button class="mcard" data-gkind="${k}" aria-pressed="${sel}"><div class="lbl">${KIND[k].label}</div><div class="big">—</div><div class="cap">Aucune mesure</div></button>`;
+    const pct = pctOf(k, last);
+    const extra = pts.length > 1 ? `<div class="cap">${growthDelta(k, pts[pts.length - 2], last)}</div>` : '';
+    return `<button class="mcard" data-gkind="${k}" aria-pressed="${sel}"><div class="lbl">${KIND[k].label}</div><div class="big">${fr(last[k], k === 'poids' ? 2 : 1)} ${KIND[k].unit}</div><div class="cap">le ${dShort(keyMs(last.date))}</div>${pct ? `<div class="pct">${pct} OMS</div>` : ''}${extra}</button>`;
   }).join('');
-
-  $('#g-kind').innerHTML = Object.keys(KIND).map((k) => `<button data-gkind="${k}" aria-pressed="${S.growth === k}">${KIND[k].long || KIND[k].label}</button>`).join('');
+  $('#g-title').textContent = { poids: 'Courbe de poids', taille: 'Courbe de taille', pc: 'Courbe du périmètre crânien' }[S.growth];
   const k = S.growth;
   const pts = MS.filter((m) => m[k]).map((m) => ({ x: ageMonths(keyMs(m.date)), v: m[k], date: m.date })).filter((p) => p.x != null && p.x >= 0 && p.x <= 24);
   if (b == null) {
@@ -962,11 +968,13 @@ function renderGrowth(now) {
     $('#g-note').textContent = `${KIND[k].long || KIND[k].label} (${KIND[k].unit}) selon l'âge. Bandes : courbes OMS garçons, P3–P97 (clair) et P15–P85 (foncé), pointillés = médiane. Le carnet de santé utilise les courbes françaises 2018, très proches.` + (pts.length ? '' : ' Ajoutez une mesure pour voir le point de Raphaël.');
   }
 
-  $('#m-list').innerHTML = MS.length ? `<div class="list">${MS.slice().reverse().map((m) => {
-    const v = Object.keys(KIND).filter((k2) => m[k2]).map((k2) => `${KIND[k2].label} ${fr(m[k2], k2 === 'poids' ? 3 : 1)} ${KIND[k2].unit}`).join(' · ');
-    const ag = ageText(keyMs(m.date));
-    return `<button class="row" data-mes="${esc(m.id)}"><span class="ico grow">${ICONS.mesure}</span><span><span class="t">${esc(v)}</span><span class="s">${ag ? esc(ag) : ''}${m.note ? (ag ? ' · ' : '') + esc(m.note) : ''}</span></span><span class="h">${dShort(keyMs(m.date))}<small>${new Date(keyMs(m.date)).getFullYear()}</small></span></button>`;
-  }).join('')}</div>` : `<div class="empty">Notez ici les mesures du pédiatre ou du carnet de santé, y compris celles de naissance.</div>`;
+  const kk = S.growth, list = MS.filter((m) => m[kk]);
+  $('#m-title').textContent = { poids: 'Mesures de poids', taille: 'Mesures de taille', pc: 'Mesures du crâne' }[kk];
+  $('#m-list').innerHTML = list.length ? `<div class="list">${list.map((m, i) => ({ m, prev: list[i - 1] })).reverse().map(({ m, prev }) => {
+    const ag = ageText(keyMs(m.date)), pct = pctOf(kk, m);
+    const sub = [ag, pct ? pct + ' OMS' : '', prev ? growthDelta(kk, prev, m) + ' depuis le ' + dShort(keyMs(prev.date)) : '', m.note && m.note.toLowerCase() !== String(ag).toLowerCase() ? m.note : ''].filter(Boolean).map(esc).join(' · ');
+    return `<button class="row" data-mes="${esc(m.id)}"><span class="ico grow">${ICONS.mesure}</span><span><span class="t">${fr(m[kk], kk === 'poids' ? 3 : 1)} ${KIND[kk].unit}</span>${sub ? `<span class="s">${sub}</span>` : ''}</span><span class="h">${dShort(keyMs(m.date))}<small>${new Date(keyMs(m.date)).getFullYear()}</small></span></button>`;
+  }).join('')}</div>` : `<div class="empty">Aucune mesure de ${KIND[kk].label.toLowerCase()} pour l'instant. Touchez « + Mesure » pour noter celles du pédiatre ou du carnet de santé, y compris à la naissance.</div>`;
 }
 
 /* ============================================================
@@ -1519,7 +1527,7 @@ document.addEventListener('click', (e) => {
   if (t.dataset.dodorange) { S.dodoRange = t.dataset.dodorange; render(); return; }
 });
 document.addEventListener('change', (e) => { const x = e.target.dataset && e.target.dataset.xincl; if (x) { S.xIncl[x] = e.target.checked; render(); } });
-$('#add-measure').onclick = () => openSheet('mesure');
+$('#add-measure').onclick = () => { openSheet('mesure'); const f = $('#f-' + S.growth); if (f) f.focus(); };
 $('#btn-settings').onclick = () => openSheet('reglages');
 $('#more-journal').onclick = () => { S.journalDays += 7; render(); };
 $('#more-bib').onclick = () => { S.bibDays += 14; render(); };
