@@ -449,7 +449,7 @@ const FIREBASE_CONFIG = {
   appId: "1:440010683437:web:9d81d1297c138baab834a4"
 };
 
-const APP_VERSION = '1.1.3';
+const APP_VERSION = '1.2.0';
 const FB_VER = '10.12.2';
 
 (() => {
@@ -492,8 +492,19 @@ const ICONS = {
 const CLS = { biberon: 'milk', dodo: 'sleep', couche: 'diaper' };
 const COUCHE = { pipi: 'Pipi', caca: 'Caca', mixte: 'Pipi + caca' };
 const LAIT = { infantile: 'Lait infantile', maternel: 'Lait maternel' };
-/* Volume final du biberon pour 1 ml d'eau : la poudre ajoute du volume (150 ml d'eau + 5 mesurettes ≈ 170 ml sur les graduations). */
-const POUDRE = 170 / 150;
+/* Lait utilisé (lu sur la boîte) : Novalac Allernova AR.
+   1 mesurette rase = 4,5 g pour 30 ml d'eau ; taux de reconstitution 13,5 % (13,5 g de poudre pour 100 ml de lait prêt) ;
+   503 kcal pour 100 g de poudre, 68 kcal pour 100 ml prêt. */
+const LAIT_REF = { nom: 'Novalac Allernova AR', gPour30: 4.5, reconst: 13.5, kcal100g: 503, kcal100ml: 68,
+  table: [[1, 6, 90], [2, 5, 120], [4, 5, 150], [6, 4, 210], [12, 3, 210], [36, 3, 240]] }; // [âge max (mois), biberons/j, ml d'eau]
+const G_PAR_ML = LAIT_REF.gPour30 / 30;                 // 0,15 g de poudre par ml d'eau
+const POUDRE = G_PAR_ML / (LAIT_REF.reconst / 100);     // 1 ml d'eau → 1,11 ml de lait prêt (150 ml d'eau ≈ 167 ml)
+const KCAL_ML = G_PAR_ML * LAIT_REF.kcal100g / 100;     // ≈ 0,75 kcal par ml d'eau
+const kcalOf = (e) => (Number(e.ml) || 0) * (e.lait === 'maternel' ? 0.67 : KCAL_ML);
+/* Besoins énergétiques moyens des garçons (FAO/OMS/UNU 2004), en kcal/kg/jour, par mois d'âge ; fourchette ± 10 %. */
+const KCAL_FAO = [113, 104, 95, 82, 81, 81, 79, 79, 79, 80, 80, 81];
+function kcalNorm(m) { const a = Math.max(0, Math.min(11, Math.floor(m == null ? 2 : m))); const c = KCAL_FAO[a]; return [Math.round(c * 0.9), Math.round(c * 1.1), c]; }
+function boxTable(m) { if (m == null) return null; const r = LAIT_REF.table.find((x) => m < x[0]); return r ? { n: r[1], ml: r[2] } : null; }
 const buFrom = (prep, reste, lait) => Math.max(0, Math.round(prep - reste / (lait === 'maternel' ? 1 : POUDRE)));
 const COULEURS = {
   jaune: ['Jaune', '#e8c33a'], moutarde: ['Moutarde', '#c49a2a'], orange: ['Orangé', '#d9822b'], vert: ['Vert', '#6e8b3d'],
@@ -846,10 +857,12 @@ function renderBib(now) {
   const last24 = bottles.filter((e) => e.at > now - DAY).reduce((s, e) => s + (Number(e.ml) || 0), 0);
   const n24 = bottles.filter((e) => e.at > now - DAY).length;
   const am = ageMonths(now);
+  const kc24 = Math.round(bottles.filter((e) => e.at > now - DAY).reduce((s, e) => s + kcalOf(e), 0));
+  const bt = boxTable(am), kn = kcalNorm(am);
   let vh;
   if (!w) {
     vh = `<div class="head"><div><h2>Dernières 24 h</h2><div class="big">${last24} <small>ml · ${n24} biberon${n24 > 1 ? 's' : ''}</small></div></div></div>
-      <p class="hint">Ajoutez un poids dans l'onglet <b>Croissance</b> pour comparer la quantité de lait au repère adapté à son poids.</p>`;
+      <p class="hint">≈ ${kc24} kcal sur 24 h. Ajoutez un poids dans l'onglet <b>Croissance</b> pour comparer au repère adapté à son poids.</p>`;
   } else {
     const tgt = appert(w.v), ratio = last24 / tgt, young = bottles.length && bottles[bottles.length - 1].at > now - DAY;
     const vd = young ? { cls: 'na', txt: 'Moins de 24 h de données' } : verdictOf(ratio);
@@ -858,7 +871,9 @@ function renderBib(now) {
     vh = `<div class="head"><div><h2>Dernières 24 h</h2><div class="big">${last24} <small>ml · ${n24} biberon${n24 > 1 ? 's' : ''}</small></div></div><span class="badge ${vd.cls}">${vd.txt}</span></div>
       <div class="gauge"><span class="zone" style="left:${tgt * 0.85 / max * 100}%;width:${tgt * 0.3 / max * 100}%"></span><span class="bar" style="width:${Math.min(100, last24 / max * 100)}%"></span><span class="tgt" style="left:${tgt / max * 100}%"></span></div>
       <div class="gauge-l"><span>0</span><span>Repère ${tgt} ml (zone ${Math.round(tgt * 0.85)}–${Math.round(tgt * 1.15)})</span></div>
-      <p class="hint">Repère selon la règle d'Appert : poids en g ÷ 10 + 250, soit ${tgt} ml/jour pour ${fr(w.v, 2)} kg${age > 14 ? ` (poids d'il y a ${age} jours : pensez à le mettre à jour)` : ''}. ${Math.round(last24 / w.v)} ml/kg sur 24 h.${am != null && (am < 1 || am > 6) ? ' Cette règle s\'applique surtout entre 1 et 6 mois.' : ''} C'est un ordre de grandeur : l'appétit varie d'un jour à l'autre, la courbe de poids reste le meilleur indicateur. En cas de doute, parlez-en au pédiatre.</p>`;
+      <p class="hint">Repère selon la règle d'Appert : poids en g ÷ 10 + 250, soit ${tgt} ml/jour pour ${fr(w.v, 2)} kg${age > 14 ? ` (poids d'il y a ${age} jours : pensez à le mettre à jour)` : ''}. ${Math.round(last24 / w.v)} ml/kg sur 24 h.${am != null && (am < 1 || am > 6) ? ' Cette règle s\'applique surtout entre 1 et 6 mois.' : ''} </p>
+      <p class="hint"><b>Calories :</b> ≈ ${kc24} kcal sur 24 h, soit <b>${Math.round(kc24 / w.v)} kcal/kg</b> (besoin moyen estimé à cet âge : ≈ ${kn[2]} kcal/kg/jour, repères FAO/OMS), calculé avec ${LAIT_REF.nom} (${LAIT_REF.kcal100ml} kcal pour 100 ml prêt).${bt ? ` Tableau de la boîte pour son âge : ${bt.n} biberons de ${bt.ml} ml d'eau, soit ${bt.n * bt.ml} ml/jour.` : ''}</p>
+      <p class="hint">Ce sont des ordres de grandeur : l'appétit varie d'un jour à l'autre et la courbe de poids reste le meilleur indicateur. En cas de doute, parlez-en au pédiatre.</p>`;
   }
   $('#bib-verdict').innerHTML = vh;
 
@@ -874,7 +889,10 @@ function renderBib(now) {
     `<div class="kpi"><b>${daysWith ? Math.round(sum7 / daysWith) + ' ml' : '—'}</b><span>par jour, moyenne 7 j</span></div>` +
     `<div class="kpi"><b>${b7l.length ? Math.round(sum7 / b7l.length) + ' ml' : '—'}</b><span>par biberon, moyenne 7 j</span></div>` +
     `<div class="kpi"><b>${daysWith ? fr(b7l.length / daysWith, 1) : '—'}</b><span>biberons par jour</span></div>` +
-    `<div class="kpi"><b>${gap ? durShort(gap) : '—'}</b><span>entre deux biberons</span></div>`;
+    `<div class="kpi"><b>${gap ? durShort(gap) : '—'}</b><span>entre deux biberons</span></div>` +
+    (() => { const k7 = b7l.reduce((s, e) => s + kcalOf(e), 0) / (daysWith || 1), ww = weightAt(now);
+      return `<div class="kpi"><b>${daysWith ? Math.round(k7) + ' kcal' : '—'}</b><span>par jour, moyenne 7 j</span></div>` +
+        `<div class="kpi"><b>${daysWith && ww ? Math.round(k7 / ww.v) : '—'}</b><span>kcal/kg/jour (repère ${kcalNorm(am)[0]}–${kcalNorm(am)[1]})</span></div>`; })();
 
   // Graphique par jour
   $('#bib-range').innerHTML = [['7', '7 j'], ['14', '14 j'], ['30', '30 j'], ['all', 'Tout']].map(([v, l]) => `<button data-bibrange="${v}" aria-pressed="${S.bibRange === v}">${l}</button>`).join('');
@@ -1129,7 +1147,7 @@ function analyseDiapers(now) {
   if (flagged.length) { const c = flagged[0]; items.push({ lvl: 'alert', t: `Couleur à signaler : ${COULEURS[c.couleur][0].toLowerCase()} le ${dShort(c.at)}`, d: ALERTES[c.couleur] }); }
   else {
     const green = stools.filter((e) => e.couleur === 'vert').length;
-    items.push({ lvl: 'ok', t: 'Couleurs normales', d: green ? 'Le vert est fréquent avec le lait infantile (fer) : pas d\'inquiétude s\'il mange et grossit bien.' : 'Jaune, moutarde ou marron : tout va bien.' });
+    items.push({ lvl: 'ok', t: 'Couleurs normales', d: green ? `Attendu avec ${LAIT_REF.nom} : la boîte précise qu'il donne des selles un peu plus vertes et moins dures qu'un lait classique.` : 'Jaune, moutarde ou marron : tout va bien.' });
   }
   // 5. Tendance
   if (n >= 5) {
@@ -1409,7 +1427,7 @@ function openSheet(type, item) {
       <div class="field"><label for="f-prenom">Prénom du bébé</label><input class="inp" id="f-prenom" value="${esc(S.config.prenom || 'Raphaël')}"></div>
       <div class="field"><label for="f-naiss">Date de naissance</label><input class="inp" id="f-naiss" type="date" value="${esc(S.config.naissance || '')}"></div>
       <div class="field"><label for="f-moi">Votre prénom</label><input class="inp" id="f-moi" value="${esc(me)}" placeholder="Affiché dans le journal (« par … »)"></div>
-      <p class="hint">${MODE === 'firebase' ? `Synchronisé · connecté en tant que ${esc(S.me || '')}` : 'Mode local : les données restent sur ce téléphone. Ajoutez la configuration Firebase pour synchroniser les deux iPhones.'}<br>Version ${APP_VERSION}</p>`;
+      <p class="hint">${MODE === 'firebase' ? `Synchronisé · connecté en tant que ${esc(S.me || '')}` : 'Mode local : les données restent sur ce téléphone. Ajoutez la configuration Firebase pour synchroniser les deux iPhones.'}<br>Lait : ${LAIT_REF.nom} · 1 mesurette rase (${fr(LAIT_REF.gPour30, 1)} g) pour 30 ml d'eau · ${LAIT_REF.kcal100ml} kcal/100 ml<br>Version ${APP_VERSION}</p>`;
   }
   $('#sheet').innerHTML = `
     <div class="grab"></div>
