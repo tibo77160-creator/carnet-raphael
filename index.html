@@ -325,7 +325,7 @@ textarea.inp { min-height: 60px; resize: vertical; }
     <section class="view" id="v-accueil">
       <div class="now" id="now"></div>
       <div class="panel ring-panel" id="ring"></div>
-      <div><h2>Aujourd'hui</h2><div class="stats" id="stats"></div></div>
+      <div class="stats" id="stats" hidden></div>
       <div>
         <h2>Journal</h2>
         <div id="journal"></div>
@@ -458,7 +458,7 @@ const FIREBASE_CONFIG = {
   appId: "1:440010683437:web:9d81d1297c138baab834a4"
 };
 
-const APP_VERSION = '1.3.0';
+const APP_VERSION = '1.3.1';
 const FB_VER = '10.12.2';
 
 (() => {
@@ -786,40 +786,40 @@ function renderSync() {
 
 /* ----- Accueil ----- */
 
-/* ----- Cadran des dernières 24 h (accueil) ----- */
+/* ----- Cadran de la journée 0 h – 24 h (accueil) ----- */
 function ringHtml(now) {
-  const C = 110, RT = 72, RB = 93, RD = 53;
-  const ang = (ms) => { const d = new Date(ms); return ((d.getHours() + d.getMinutes() / 60) / 24) * 2 * Math.PI - Math.PI / 2; };
-  const pt = (ms, r) => { const a = ang(ms); return [(C + r * Math.cos(a)).toFixed(1), (C + r * Math.sin(a)).toFixed(1)]; };
-  const arc = (s, e, r) => {
-    if (e - s >= DAY - 60000) return `<circle cx="${C}" cy="${C}" r="${r}" fill="none" stroke="var(--sleep)" stroke-width="14"/>`;
-    const parts = e - s > DAY / 2 ? [[s, s + (e - s) / 2], [s + (e - s) / 2, e]] : [[s, e]];
-    return parts.map(([a, b]) => { const [x1, y1] = pt(a, r), [x2, y2] = pt(b, r); return `<path d="M${x1} ${y1} A${r} ${r} 0 0 1 ${x2} ${y2}" fill="none" stroke="var(--sleep)" stroke-width="14" stroke-linecap="round"><title>Dodo ${hm(a)} → ${hm(b)}</title></path>`; }).join('');
-  };
-  const from = now - DAY;
-  let g = `<circle cx="${C}" cy="${C}" r="${RT}" fill="none" stroke="var(--surface-2)" stroke-width="14"/>`;
-  for (const [h, l] of [[0, '0 h'], [6, '6 h'], [12, '12 h'], [18, '18 h']]) {
-    const a = h / 24 * 2 * Math.PI - Math.PI / 2;
-    g += `<text class="tk" x="${(C + 108 * Math.cos(a)).toFixed(1)}" y="${(C + 108 * Math.sin(a) + 3.5).toFixed(1)}" text-anchor="middle">${l}</text>`;
+  const C = 110, RT = 74, RB = 95, RD = 54, A0 = 120, SPAN = 300; // ouverture en bas : 0 h en bas à gauche, 12 h en haut, 24 h en bas à droite
+  const d0 = sod(now), d1 = addDays(d0, 1);
+  const hOf = (ms) => Math.max(0, Math.min(24, (ms - d0) / HOUR));
+  const deg = (h) => A0 + h / 24 * SPAN;
+  const P = (h, r) => { const a = deg(h) * Math.PI / 180; return [(C + r * Math.cos(a)).toFixed(1), (C + r * Math.sin(a)).toFixed(1)]; };
+  const arc = (h1, h2, r, stroke, w, extra = '') => { const [x1, y1] = P(h1, r), [x2, y2] = P(h2, r); const large = (h2 - h1) / 24 * SPAN > 180 ? 1 : 0; return `<path d="M${x1} ${y1} A${r} ${r} 0 ${large} 1 ${x2} ${y2}" fill="none" stroke="${stroke}" stroke-width="${w}" stroke-linecap="round"${extra}/>`; };
+  const hn = hOf(now);
+  let g = arc(0, 24, RT, 'var(--surface-2)', 14);
+  for (const [h, l] of [[0, '0 h'], [6, '6 h'], [12, '12 h'], [18, '18 h'], [24, '24 h']]) { const [x, y] = P(h, 110); g += `<text class="tk" x="${x}" y="${(+y + 3.5).toFixed(1)}" text-anchor="middle">${l}</text>`; }
+  for (const e of EV) {
+    if (e.t !== 'dodo') continue;
+    const s = Math.max(e.at, d0), en = Math.min(e.end || now, now, d1);
+    if (en <= s) continue;
+    g += arc(hOf(s), Math.max(hOf(en), hOf(s) + 0.05), RT, 'var(--sleep)', 14);
   }
-  const evs = EV.filter((e) => (e.end || e.at) >= from || (e.t === 'dodo' && !e.end));
-  for (const e of evs) if (e.t === 'dodo') { const s = Math.max(e.at, from), en = Math.min(e.end || now, now); if (en > s) g += arc(s, en, RT); }
-  for (const e of evs) {
-    if (e.at < from || e.t === 'dodo') continue;
-    if (e.t === 'biberon') { const [x, y] = pt(e.at, RB); g += `<circle cx="${x}" cy="${y}" r="5.5" fill="var(--milk)" stroke="var(--surface)" stroke-width="1.5"><title>Biberon ${e.ml} ml à ${hm(e.at)}</title></circle>`; }
-    else { const [x, y] = pt(e.at, RD); g += `<circle cx="${x}" cy="${y}" r="5" fill="${e.couche === 'pipi' ? 'var(--diaper)' : 'var(--stool)'}" stroke="var(--surface)" stroke-width="1.5"><title>${COUCHE[e.couche] || 'Couche'} à ${hm(e.at)}</title></circle>`; }
+  for (const e of EV) {
+    if (e.at < d0 || e.at >= d1 || e.t === 'dodo') continue;
+    if (e.t === 'biberon') { const [x, y] = P(hOf(e.at), RB); g += `<circle cx="${x}" cy="${y}" r="5.5" fill="var(--milk)" stroke="var(--surface)" stroke-width="1.5"><title>Biberon ${e.ml} ml à ${hm(e.at)}</title></circle>`; }
+    else { const [x, y] = P(hOf(e.at), RD); g += `<circle cx="${x}" cy="${y}" r="5" fill="${e.couche === 'pipi' ? 'var(--diaper)' : 'var(--stool)'}" stroke="var(--surface)" stroke-width="1.5"><title>${COUCHE[e.couche] || 'Couche'} à ${hm(e.at)}</title></circle>`; }
   }
-  const [hx1, hy1] = pt(now, RT - 12), [hx2, hy2] = pt(now, RB + 6);
-  g += `<line x1="${hx1}" y1="${hy1}" x2="${hx2}" y2="${hy2}" stroke="var(--fg)" stroke-width="2.5" stroke-linecap="round"/>`;
+  const [hx1, hy1] = P(hn, RT - 11), [hx2, hy2] = P(hn, RT + 11);
+  g += `<line x1="${hx1}" y1="${hy1}" x2="${hx2}" y2="${hy2}" stroke="var(--fg)" stroke-width="3" stroke-linecap="round"/>`;
   const last = EV.find((e) => e.at <= now);
-  const LBL = { biberon: ['Biberon', 'var(--milk)'], dodo: ['Dodo', 'var(--sleep)'], couche: ['Couche', 'var(--diaper)'] };
-  const lastTxt = last ? (last.t === 'dodo' && !last.end ? ['En train de dormir', 'var(--sleep)'] : last.t === 'dodo' ? ['Réveil', 'var(--sleep)'] : LBL[last.t]) : null;
+  const LBL = { biberon: ['Biberon', 'var(--milk)'], couche: ['Couche', 'var(--diaper)'] };
+  const lastTxt = last ? (last.t === 'dodo' ? (last.end ? ['Réveil', 'var(--sleep)'] : ['Dort', 'var(--sleep)']) : LBL[last.t]) : null;
   const lastTime = last ? (last.t === 'dodo' && last.end ? hm(last.end) : hm(last.at)) : '—';
   g += `<text x="${C}" y="${C - 14}" text-anchor="middle" style="fill:var(--muted);font-size:12px">Dernier</text>`;
   g += `<text x="${C}" y="${C + 12}" text-anchor="middle" style="fill:var(--fg);font-size:26px;font-weight:700;font-family:var(--display)">${lastTime}</text>`;
   if (lastTxt) g += `<text x="${C}" y="${C + 32}" text-anchor="middle" style="fill:${lastTxt[1]};font-size:13px;font-weight:700">${lastTxt[0]}</text>`;
-  const t = totals(from, now + 1, now);
-  return `<div class="panel-h"><h2>Dernières 24 h</h2><span class="hint">minuit en haut · le trait = maintenant</span></div><svg viewBox="-12 -12 244 244" role="img" aria-label="Les dernières 24 heures sur un cadran">${g}</svg>
+  const t = totals(d0, d1, now);
+  return `<div class="panel-h"><h2>Aujourd'hui</h2><span class="hint">de 0 h à 24 h · le trait = maintenant</span></div>
+    <svg viewBox="-12 -12 244 232" role="img" aria-label="La journée d'aujourd'hui sur un cadran de 0 h à 24 h">${g}</svg>
     <div class="ring-side"><ul>
       <li><i style="background:var(--milk)"></i><span><b>${t.ml} ml</b> · ${t.nb} biberon${t.nb > 1 ? 's' : ''}</span></li>
       <li><i style="background:var(--sleep)"></i><span><b>${durShort(t.sleep)}</b> de sommeil</span></li>
