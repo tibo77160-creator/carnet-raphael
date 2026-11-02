@@ -442,7 +442,7 @@ const FIREBASE_CONFIG = {
   appId: "1:440010683437:web:9d81d1297c138baab834a4"
 };
 
-const APP_VERSION = '1.1.0';
+const APP_VERSION = '1.1.1';
 const FB_VER = '10.12.2';
 
 (() => {
@@ -1537,7 +1537,31 @@ setInterval(() => { if (!current) render(); }, 30000);
 document.addEventListener('visibilitychange', () => { if (!document.hidden) render(); });
 
 /* ---------- Démarrage ---------- */
-if ('serviceWorker' in navigator && location.protocol === 'https:') navigator.serviceWorker.register('sw.js').catch(() => {});
+if ('serviceWorker' in navigator && location.protocol === 'https:') navigator.serviceWorker.register('sw.js', { updateViaCache: 'none' }).catch(() => {});
+
+/* ---------- Mise à jour automatique ----------
+   À l'ouverture et à chaque retour dans l'app, on compare APP_VERSION à version.json (sans cache).
+   Si une nouvelle version est en ligne : on vide le cache et on recharge (une seule fois par version). */
+async function checkUpdate() {
+  if (location.protocol !== 'https:') return;
+  try {
+    const r = await fetch('version.json?t=' + Date.now(), { cache: 'no-store' });
+    if (!r.ok) return;
+    const { version } = await r.json();
+    if (!version || version === APP_VERSION) return;
+    if (lsGet('upd-tried') === version) return;
+    lsSet('upd-tried', version);
+    const go = async () => {
+      try { const reg = await navigator.serviceWorker?.getRegistration(); if (reg) await reg.update(); } catch {}
+      try { if (window.caches) for (const k of await caches.keys()) await caches.delete(k); } catch {}
+      location.reload();
+    };
+    if (current) toast(`Nouvelle version ${version} disponible`, null);
+    else { toast(`Mise à jour vers la version ${version}…`); setTimeout(go, 800); }
+  } catch {}
+}
+checkUpdate();
+document.addEventListener('visibilitychange', () => { if (!document.hidden) checkUpdate(); });
 if (MODE === 'firebase') startFirebase();
 else { LocalStore.load(); S.me = 'local'; S.syncKind = 'local'; rebuild(); showApp(); }
 window.__carnet = { S, store, render, buildCsv };
