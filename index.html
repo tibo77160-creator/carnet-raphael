@@ -17,8 +17,8 @@
 /* Layout : une colonne façon app iPhone, barre d'onglets en bas, feuilles modales qui montent du bas. */
 :root {
   --bg: #eef1f8; --surface: #ffffff; --surface-2: #f5f7fc; --fg: #1a1f33; --muted: #5f6680; --line: #dde2ee;
-  --milk: #b06a08; --milk-soft: #fbefdc; --sleep: #5a4bc4; --sleep-soft: #ebe8fb; --diaper: #0f7f70; --diaper-soft: #ddf3ef;
-  --grow: #2f6fd0; --grow-soft: #e2ecfb; --band1: rgba(47, 111, 208, .10); --band2: rgba(47, 111, 208, .18);
+  --milk: #1f6fd1; --milk-soft: #e2edfb; --sleep: #5a4bc4; --sleep-soft: #ebe8fb; --diaper: #0f7f70; --diaper-soft: #ddf3ef;
+  --grow: #b8325e; --grow-soft: #fbe4ec; --band1: rgba(184, 50, 94, .09); --band2: rgba(184, 50, 94, .17); --stool: #8a5a2b;
   --ok: #1f8a4c; --ok-soft: #dff3e7; --warn: #b54a1a; --warn-soft: #fbe6dc; --scrim: rgba(16, 20, 40, .45);
   --display: ui-rounded, "SF Pro Rounded", "Nunito", system-ui, sans-serif;
   --body: -apple-system, BlinkMacSystemFont, system-ui, "Segoe UI", Roboto, sans-serif;
@@ -27,8 +27,8 @@
 @media (prefers-color-scheme: dark) {
   :root {
     --bg: #0d1020; --surface: #171b2e; --surface-2: #1e233a; --fg: #e9ebf5; --muted: #9ba2bd; --line: #2a3050;
-    --milk: #f2b35a; --milk-soft: #33281a; --sleep: #ab9fff; --sleep-soft: #26234a; --diaper: #45cdb6; --diaper-soft: #15302d;
-    --grow: #7fb0ff; --grow-soft: #1b2a47; --band1: rgba(127, 176, 255, .10); --band2: rgba(127, 176, 255, .18);
+    --milk: #6fa9ff; --milk-soft: #182a46; --sleep: #ab9fff; --sleep-soft: #26234a; --diaper: #45cdb6; --diaper-soft: #15302d;
+    --grow: #ff86ad; --grow-soft: #3a1a28; --band1: rgba(255, 134, 173, .10); --band2: rgba(255, 134, 173, .18); --stool: #c99a63;
     --ok: #5fd08e; --ok-soft: #16301f; --warn: #ff9a6b; --warn-soft: #3a2117; --scrim: rgba(0, 0, 0, .6);
     color-scheme: dark;
   }
@@ -51,7 +51,7 @@ button { cursor: pointer; }
 .sync { display: inline-flex; align-items: center; gap: 6px; font-size: 12.5px; color: var(--muted); white-space: nowrap; }
 .sync i { width: 8px; height: 8px; border-radius: 50%; background: var(--muted); }
 .sync.ok i { background: var(--ok); }
-.sync.wait i { background: var(--milk); }
+.sync.wait i { background: #d39b2a; }
 .sync.bad { color: var(--warn); } .sync.bad i { background: var(--warn); }
 .iconbtn { width: 40px; height: 40px; border-radius: 50%; border: 1px solid var(--line); background: var(--surface); display: grid; place-items: center; color: var(--muted); }
 .iconbtn svg { width: 20px; height: 20px; }
@@ -173,11 +173,36 @@ td.dim { color: var(--muted); }
 .danger { border: 1px solid var(--line); border-radius: 14px; min-height: 48px; font-weight: 600; background: none; color: var(--warn); width: 100%; }
 .danger.armed { background: var(--warn); color: var(--surface); border-color: transparent; }
 
+
+/* Analyses */
+.an-head { display: flex; justify-content: space-between; align-items: flex-start; gap: 10px; margin-bottom: 10px; }
+.an-head h2 { margin: 0 0 2px; }
+.badge.big { font-size: 13px; padding: 5px 10px; border-radius: 10px; white-space: nowrap; }
+.badge.alert { background: var(--warn); color: var(--surface); }
+.an-list { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 10px; }
+.an-list li { position: relative; padding-left: 20px; }
+.an-list li::before { content: ""; position: absolute; left: 2px; top: 6px; width: 10px; height: 10px; border-radius: 50%; background: var(--ok); }
+.an-list li.info::before { background: var(--muted); }
+.an-list li.warn::before { background: #d39b2a; }
+.an-list li.alert::before { background: var(--warn); }
+.an-list li b { display: block; font-weight: 650; font-size: 15px; }
+.an-list li span { display: block; font-size: 13.5px; color: var(--muted); }
+.an-tips { margin-top: 14px; background: var(--surface-2); border-radius: 12px; padding: 10px 12px; }
+.an-tips h3 { margin: 0 0 6px; font-size: 13px; text-transform: uppercase; letter-spacing: .05em; color: var(--muted); }
+.an-tips ul { margin: 0; padding-left: 18px; font-size: 14px; display: flex; flex-direction: column; gap: 4px; }
+.stools { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; }
+.stool { display: flex; align-items: center; gap: 10px; border: 1px solid var(--line); background: var(--surface); border-radius: 12px; padding: 8px 10px; text-align: left; min-width: 0; }
+.stool .sw { width: 22px; height: 22px; border-radius: 50%; border: 1px solid rgba(0,0,0,.2); flex: none; }
+.stool b { display: block; font-size: 13px; font-variant-numeric: tabular-nums; }
+.stool small { display: block; font-size: 12px; color: var(--muted); overflow-wrap: anywhere; }
+.add-sm.sleep { background: var(--sleep-soft); color: var(--sleep); }
+.add-sm.diaper { background: var(--diaper-soft); color: var(--diaper); }
+
 /* Onglets */
 .tabs { position: fixed; left: 0; right: 0; bottom: 0; z-index: 20; background: var(--surface); border-top: 1px solid var(--line); padding-bottom: env(safe-area-inset-bottom); padding-left: env(safe-area-inset-left); padding-right: env(safe-area-inset-right); }
-.tabs .in { max-width: 600px; margin: 0 auto; display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); }
-.tab { border: 0; background: none; padding: 8px 2px 7px; display: flex; flex-direction: column; align-items: center; gap: 2px; font-size: 11.5px; font-weight: 600; color: var(--muted); }
-.tab svg { width: 24px; height: 24px; }
+.tabs .in { max-width: 600px; margin: 0 auto; display: grid; grid-template-columns: repeat(6, minmax(0, 1fr)); }
+.tab { border: 0; background: none; padding: 8px 0 7px; display: flex; flex-direction: column; align-items: center; gap: 2px; font-size: 10.5px; min-width: 0; white-space: nowrap; font-weight: 600; color: var(--muted); }
+.tab svg { width: 22px; height: 22px; }
 .tab[aria-current="page"] { color: var(--fg); }
 
 /* Feuille modale */
@@ -312,6 +337,46 @@ textarea.inp { min-height: 60px; resize: vertical; }
       </div>
     </section>
 
+    <!-- DODO -->
+    <section class="view" id="v-dodo" hidden>
+      <div class="panel" id="dodo-analysis"></div>
+      <div class="kpis" id="dodo-kpis"></div>
+      <div class="panel">
+        <div class="panel-h"><h2>Sommeil par jour</h2><div class="segsm" id="dodo-range"></div></div>
+        <div id="dodo-chart"></div>
+        <div class="legend"><span><i style="background:var(--sleep)"></i>Nuit (19 h – 7 h)</span><span><i style="background:var(--sleep);opacity:.45"></i>Journée</span><span><i style="background:var(--sleep-soft);height:10px;vertical-align:0"></i>Repère pour son âge</span></div>
+      </div>
+      <div class="panel">
+        <div class="panel-h"><h2>Rythme des 7 derniers jours</h2></div>
+        <div id="dodo-rythme"></div>
+      </div>
+      <div>
+        <div class="row-h"><h2>Historique</h2><button class="add-sm sleep" data-act="sleep">+ Dodo</button></div>
+        <div id="dodo-hist"></div>
+        <button class="ghost" id="more-dodo" hidden>Afficher plus de jours</button>
+      </div>
+    </section>
+
+    <!-- COUCHES -->
+    <section class="view" id="v-couches" hidden>
+      <div class="panel" id="couche-analysis"></div>
+      <div class="kpis" id="couche-kpis"></div>
+      <div class="panel">
+        <div class="panel-h"><h2>Couches par jour</h2></div>
+        <div id="couche-chart"></div>
+        <div class="legend"><span><i style="background:var(--diaper)"></i>Pipi</span><span><i style="background:var(--stool)"></i>Selles (caca ou pipi + caca)</span></div>
+      </div>
+      <div class="panel">
+        <div class="panel-h"><h2>Dernières selles</h2></div>
+        <div id="couche-selles"></div>
+      </div>
+      <div>
+        <div class="row-h"><h2>Historique</h2><button class="add-sm diaper" data-add="couche">+ Couche</button></div>
+        <div id="couche-hist"></div>
+        <button class="ghost" id="more-couche" hidden>Afficher plus de jours</button>
+      </div>
+    </section>
+
     <!-- CROISSANCE -->
     <section class="view" id="v-croissance" hidden>
       <div class="mcards" id="m-cards"></div>
@@ -347,6 +412,8 @@ textarea.inp { min-height: 60px; resize: vertical; }
     <div class="in">
       <button class="tab" data-tab="accueil" aria-current="page"><svg viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M12 3.2 3 10.4V21h6.2v-6h5.6v6H21V10.4z"/></svg>Accueil</button>
       <button class="tab" data-tab="bib"><svg viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M9.5 2h5v2.2l1.8 2.3c.45.57.7 1.28.7 2V20a2 2 0 0 1-2 2H9a2 2 0 0 1-2-2V8.5c0-.72.25-1.43.7-2l1.8-2.3z"/></svg>Biberons</button>
+      <button class="tab" data-tab="dodo"><svg viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M20.5 14.6A8.5 8.5 0 1 1 9.4 3.5a7 7 0 0 0 11.1 11.1z"/></svg>Dodo</button>
+      <button class="tab" data-tab="couches"><svg viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M3 6h18v3.5a9.5 9.5 0 0 1-6.2 8.9l-.8.3h-4l-.8-.3A9.5 9.5 0 0 1 3 9.5z"/></svg>Couches</button>
       <button class="tab" data-tab="croissance"><svg viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M3 20h18v2H3zM4 17l5-6 4 3 6-8 1.6 1.2-7.2 9.6-4-3L5.5 18.3z"/></svg>Croissance</button>
       <button class="tab" data-tab="export"><svg viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M11 3h2v10.2l3.6-3.6 1.4 1.4-6 6-6-6 1.4-1.4 3.6 3.6zM4 19h16v2H4z"/></svg>Export</button>
     </div>
@@ -375,7 +442,7 @@ const FIREBASE_CONFIG = {
   appId: "1:440010683437:web:9d81d1297c138baab834a4"
 };
 
-const APP_VERSION = '1.0.2';
+const APP_VERSION = '1.1.0';
 const FB_VER = '10.12.2';
 
 (() => {
@@ -462,7 +529,7 @@ function dayLabel(ms) {
 /* ---------- État ---------- */
 const S = {
   days: new Map(), measures: new Map(), config: {}, me: null,
-  tab: lsGet('tab') || 'accueil', journalDays: 3, bibDays: 7, bibRange: '14', growth: 'poids',
+  tab: lsGet('tab') || 'accueil', journalDays: 3, bibDays: 7, bibRange: '14', dodoRange: '14', dodoDays: 7, coucheDays: 7, growth: 'poids',
   xRange: '7j', xIncl: { biberon: true, dodo: true, couche: true, mesure: true },
   syncKind: 'local'
 };
@@ -666,10 +733,13 @@ function render() {
   const at = ageText(now);
   $('#baby-age').textContent = at ? at : 'Date de naissance à renseigner (réglages)';
   $$('.tab').forEach((t) => { if (t.dataset.tab === S.tab) t.setAttribute('aria-current', 'page'); else t.removeAttribute('aria-current'); });
-  ['accueil', 'bib', 'croissance', 'export'].forEach((v) => { $('#v-' + v).hidden = v !== S.tab; });
+  if (!['accueil', 'bib', 'dodo', 'couches', 'croissance', 'export'].includes(S.tab)) S.tab = 'accueil';
+  ['accueil', 'bib', 'dodo', 'couches', 'croissance', 'export'].forEach((v) => { $('#v-' + v).hidden = v !== S.tab; });
   renderSync();
   if (S.tab === 'accueil') renderHome(now);
   if (S.tab === 'bib') renderBib(now);
+  if (S.tab === 'dodo') renderDodo(now);
+  if (S.tab === 'couches') renderCouches(now);
   if (S.tab === 'croissance') renderGrowth(now);
   if (S.tab === 'export') renderExport(now);
 }
@@ -897,6 +967,270 @@ function renderGrowth(now) {
     const ag = ageText(keyMs(m.date));
     return `<button class="row" data-mes="${esc(m.id)}"><span class="ico grow">${ICONS.mesure}</span><span><span class="t">${esc(v)}</span><span class="s">${ag ? esc(ag) : ''}${m.note ? (ag ? ' · ' : '') + esc(m.note) : ''}</span></span><span class="h">${dShort(keyMs(m.date))}<small>${new Date(keyMs(m.date)).getFullYear()}</small></span></button>`;
   }).join('')}</div>` : `<div class="empty">Notez ici les mesures du pédiatre ou du carnet de santé, y compris celles de naissance.</div>`;
+}
+
+/* ============================================================
+   ANALYSES (repères généraux selon l'âge)
+   ============================================================ */
+const HOUR = 3600000;
+const atH = (d, h) => { const x = new Date(d); x.setHours(h, 0, 0, 0); return x.getTime(); };
+const ov = (s, e, a, b) => Math.max(0, Math.min(e, b) - Math.max(s, a));
+const LVL = { ok: 0, info: 0, warn: 1, alert: 2 };
+const STATUS = [['ok', 'Tout va bien'], ['warn', 'À surveiller'], ['alert', 'À signaler au médecin']];
+const median = (a) => { if (!a.length) return null; const s = a.slice().sort((x, y) => x - y); const m = Math.floor(s.length / 2); return s.length % 2 ? s[m] : (s[m - 1] + s[m]) / 2; };
+const mean = (a) => a.length ? a.reduce((s, x) => s + x, 0) / a.length : null;
+const hText = (ms) => durShort(ms).replace('h', ' h ').replace(' min', ' min');
+const clock = (min) => { const m = ((Math.round(min) % 1440) + 1440) % 1440; return pad(Math.floor(m / 60)) + 'h' + pad(m % 60); };
+
+function ageMo(now) { const a = ageMonths(now); return a == null ? null : a; }
+function sleepNorms(m) {
+  const am = m == null ? 2.5 : m;
+  return {
+    total: am < 4 ? [14, 17] : am < 12 ? [12, 15] : [11, 14],
+    naps: am < 4 ? [3, 6] : am < 6 ? [3, 4] : am < 9 ? [2, 3] : am < 15 ? [1, 2] : [1, 1],
+    wake: am < 1 ? [35, 60] : am < 3 ? [60, 90] : am < 5 ? [75, 120] : am < 7 ? [120, 180] : am < 10 ? [150, 210] : am < 15 ? [180, 240] : [240, 330]
+  };
+}
+/* Jours complets analysables : hier en remontant, en excluant le premier jour saisi (souvent incomplet). */
+function fullDays(types, now, n = 7) {
+  const evs = EV.filter((e) => types.includes(e.t));
+  if (!evs.length) return [];
+  const first = sod(evs[evs.length - 1].at), t0 = sod(now), out = [];
+  for (let i = 1; i <= n; i++) { const d = addDays(t0, -i); if (d <= first) break; out.push(d); }
+  return out;
+}
+function sleepDay(d, now) {
+  const a = d, b = addDays(d, 1), da = atH(d, 7), db = atH(d, 19);
+  let total = 0, day = 0, naps = 0, longest = 0;
+  for (const e of EV) {
+    if (e.t !== 'dodo') continue;
+    const end = e.end || now;
+    total += ov(e.at, end, a, b); day += ov(e.at, end, da, db);
+    if (e.at >= da && e.at < db) naps++;
+    if (e.at >= a && e.at < b) longest = Math.max(longest, end - e.at);
+  }
+  return { d, total, day, night: total - day, naps, longest };
+}
+function analysisHtml(title, res) {
+  const lvl = res.items.length ? Math.max(...res.items.map((i) => LVL[i.lvl] || 0)) : -1;
+  const [cls, txt] = lvl < 0 ? ['na', 'Pas assez de données'] : STATUS[lvl];
+  return `<div class="an-head"><div><h2>${esc(title)}</h2>${res.period ? `<div class="hint">${esc(res.period)}</div>` : ''}</div><span class="badge big ${cls === 'warn' ? 'low' : cls === 'alert' ? 'alert' : cls}">${txt}</span></div>
+    ${res.items.length ? `<ul class="an-list">${res.items.map((i) => `<li class="${i.lvl}"><b>${i.t}</b>${i.d ? `<span>${i.d}</span>` : ''}</li>`).join('')}</ul>` : `<p class="hint">${esc(res.empty || '')}</p>`}
+    ${res.tips && res.tips.length ? `<div class="an-tips"><h3>Pistes</h3><ul>${res.tips.map((t) => `<li>${t}</li>`).join('')}</ul></div>` : ''}
+    <p class="fine">Repères généraux selon l'âge, calculés sur ce que vous notez. Ils ne remplacent pas l'avis du pédiatre : au moindre doute, appelez-le.</p>`;
+}
+
+function analyseSleep(now) {
+  const days = fullDays(['dodo'], now, 7);
+  if (days.length < 3) return { items: [], empty: 'Il faut au moins 3 jours complets de dodos notés pour analyser les tendances.' };
+  const am = ageMo(now), N = sleepNorms(am), items = [], tips = [];
+  const st = days.map((d) => sleepDay(d, now));
+  const avgT = mean(st.map((s) => s.total)) / HOUR;
+  const ageTxt = am == null ? 'son âge' : (am < 1 ? 'moins d\'un mois' : Math.floor(am) + ' mois');
+  // 1. Total
+  if (avgT < N.total[0]) {
+    items.push({ lvl: 'warn', t: `Sommeil total : ${hText(avgT * HOUR)} par jour en moyenne`, d: `Un peu sous le repère de ${N.total[0]} à ${N.total[1]} h par 24 h à ${ageTxt}. Vérifiez d'abord que toutes les siestes sont bien notées.` });
+    tips.push('Guettez les premiers signes de fatigue (bâillements, frottement des yeux, regard dans le vide) et proposez le dodo à ce moment-là, sans attendre les pleurs.');
+  } else if (avgT > N.total[1] + 1) {
+    items.push({ lvl: 'info', t: `Sommeil total : ${hText(avgT * HOUR)} par jour en moyenne`, d: `Au-dessus du repère de ${N.total[0]} à ${N.total[1]} h. Pas d'inquiétude s'il est tonique et mange bien éveillé.` });
+  } else {
+    items.push({ lvl: 'ok', t: `Sommeil total : ${hText(avgT * HOUR)} par jour en moyenne`, d: `Dans le repère de ${N.total[0]} à ${N.total[1]} h par 24 h à ${ageTxt}.` });
+  }
+  // 2. Plus longue plage
+  const lg = mean(st.map((s) => s.longest));
+  if (lg) items.push({ lvl: am != null && am >= 2 && lg < 3 * HOUR ? 'info' : 'ok', t: `Plus longue plage de sommeil : ${hText(lg)} en moyenne`, d: lg >= 5 * HOUR ? 'Belles nuits pour son âge.' : 'Les longues plages s\'allongent en général progressivement entre 2 et 6 mois.' });
+  // 3. Siestes
+  const naps = mean(st.map((s) => s.naps));
+  if (naps < N.naps[0]) { items.push({ lvl: 'info', t: `${fr(naps, 1)} sieste${naps >= 2 ? 's' : ''} par jour`, d: `Le repère est de ${N.naps[0]} à ${N.naps[1]} siestes à cet âge.` }); }
+  else items.push({ lvl: 'ok', t: `${fr(naps, 1)} siestes par jour`, d: `Repère : ${N.naps[0]} à ${N.naps[1]} à cet âge.` });
+  // 4. Fenêtres d'éveil (journée)
+  const segs = EV.filter((e) => e.t === 'dodo' && e.end && e.at >= days[days.length - 1] - 6 * HOUR && e.at < addDays(days[0], 1)).sort((a, b) => a.at - b.at);
+  const gaps = [], longGaps = [];
+  for (let i = 0; i + 1 < segs.length; i++) {
+    const endH = new Date(segs[i].end).getHours(), g = segs[i + 1].at - segs[i].end;
+    if (endH >= 7 && endH < 19 && g > 5 * 60000 && g < 8 * HOUR) { gaps.push(g / 60000); if (new Date(segs[i].end).getHours() >= 14) longGaps.push(g / 60000); }
+  }
+  const mw = median(gaps);
+  if (mw != null) {
+    if (mw > N.wake[1] * 1.15) {
+      items.push({ lvl: 'warn', t: `Éveils de ${durShort(mw * 60000)} en journée (médiane)`, d: `Plus longs que le repère de ${N.wake[0]} à ${N.wake[1]} min à cet âge : risque de bébé trop fatigué, qui s'endort ensuite plus difficilement.` });
+      tips.push(`Essayez de recoucher Raphaël au bout de ${N.wake[0]} à ${N.wake[1]} min d'éveil en journée.`);
+    } else items.push({ lvl: 'ok', t: `Éveils de ${Math.round(mw)} min entre les siestes (médiane)`, d: `Dans le repère de ${N.wake[0]} à ${N.wake[1]} min à cet âge.` });
+    const lgA = Math.max(0, ...longGaps);
+    if (lgA > N.wake[1] * 2) { items.push({ lvl: 'info', t: `Longue période éveillée l'après-midi (jusqu'à ${hText(lgA * 60000)})`, d: 'Souvent la fin de journée, avant le coucher.' }); tips.push('Une petite sieste en fin d\'après-midi (vers 17 h) peut éviter un coucher sur-fatigué.'); }
+  }
+  // 5. Régularité du coucher
+  const beds = days.map((d) => EV.filter((e) => e.t === 'dodo' && e.at >= atH(d, 18) && e.at < addDays(d, 1)).sort((a, b) => a.at - b.at)[0]).filter(Boolean).map((e) => (e.at - atH(sod(e.at), 18)) / 60000);
+  if (beds.length >= 3) {
+    const m = mean(beds), sd = Math.sqrt(mean(beds.map((x) => (x - m) ** 2)));
+    if (sd > 60) { items.push({ lvl: 'warn', t: `Heure du coucher variable (vers ${clock(18 * 60 + m)}, ± ${Math.round(sd)} min)`, d: 'Un coucher à heure régulière aide son horloge interne à se mettre en place.' }); tips.push('Installez un petit rituel du soir toujours identique (bain ou toilette, biberon, câlin, lumière tamisée) à heure fixe.'); }
+    else items.push({ lvl: 'ok', t: `Coucher régulier vers ${clock(18 * 60 + m)}`, d: sd > 30 ? `À ± ${Math.round(sd)} min près.` : 'Très régulier.' });
+  }
+  // 6. Réveils nocturnes
+  const wakes = days.map((d) => { const a = atH(d, 19), b = atH(addDays(d, 1), 7); const s = EV.filter((e) => e.t === 'dodo' && e.end && e.end > a && e.at < b).sort((x, y) => x.at - y.at); let w = 0; for (let i = 0; i + 1 < s.length; i++) if (s[i + 1].at - s[i].end >= 10 * 60000) w++; return w; });
+  const mwk = mean(wakes);
+  items.push({ lvl: 'ok', t: `${fr(mwk, 1)} réveil${mwk >= 2 ? 's' : ''} par nuit en moyenne`, d: am != null && am < 6 ? 'Les réveils pour boire restent normaux à cet âge.' : '' });
+  // 7. Tendance
+  if (st.length >= 5) {
+    const r = mean(st.slice(0, 3).map((s) => s.total)), p = mean(st.slice(3).map((s) => s.total)), df = (r - p) / HOUR;
+    if (Math.abs(df) >= 1) items.push({ lvl: 'info', t: `Tendance : ${df > 0 ? 'il dort plus' : 'il dort moins'} ces 3 derniers jours (${df > 0 ? '+' : '−'}${hText(Math.abs(df) * HOUR)}/jour)`, d: df < 0 ? 'Vérifiez d\'abord qu\'aucun dodo n\'a été oublié. Sinon, une poussée de croissance, un rhume ou un changement de rythme peuvent l\'expliquer.' : '' });
+  }
+  if (!tips.length) tips.push('Gardez ce qui marche : rituel du coucher, journées lumineuses et nuits calmes et sombres, couchage sur le dos dans son lit, chambre autour de 18–20 °C.');
+  return { items, tips, period: `${days.length} derniers jours complets` };
+}
+
+function analyseDiapers(now) {
+  const days = fullDays(['couche'], now, 7);
+  if (days.length < 3) return { items: [], empty: 'Il faut au moins 3 jours complets de couches notées pour analyser les tendances.' };
+  const a = days[days.length - 1], b = addDays(days[0], 1), n = days.length;
+  const cs = EV.filter((e) => e.t === 'couche' && e.at >= a && e.at < b);
+  const wet = cs.filter((e) => e.couche !== 'caca').length / n;
+  const stools = cs.filter((e) => e.couche !== 'pipi');
+  const spd = stools.length / n;
+  const items = [], tips = [];
+  // 1. Couches mouillées
+  if (wet >= 5) items.push({ lvl: 'ok', t: `${fr(wet, 1)} couches mouillées par jour`, d: 'Bon signe d\'hydratation (repère : au moins 5 à 6 par jour).' });
+  else if (wet >= 4) { items.push({ lvl: 'warn', t: `${fr(wet, 1)} couches mouillées par jour`, d: 'Un peu sous le repère de 5 à 6 par jour. Souvent ce sont des couches oubliées dans la saisie, ou des couches « caca » qui étaient aussi mouillées.' }); tips.push('Pensez à noter chaque change (y compris « pipi + caca ») pour que l\'analyse soit fiable.'); }
+  else { items.push({ lvl: 'alert', t: `Seulement ${fr(wet, 1)} couches mouillées par jour`, d: 'Si c\'est réel (couches plus sèches, urines foncées, bébé moins tonique, fontanelle creusée), appelez le médecin rapidement.' }); }
+  // 2. Fréquence des selles
+  const last = EV.find((e) => e.t === 'couche' && e.couche !== 'pipi');
+  const since = last ? (now - last.at) / DAY : null;
+  items.push({ lvl: 'ok', t: `${fr(spd, 1)} selle${spd >= 2 ? 's' : ''} par jour en moyenne`, d: 'Avec du lait infantile, de 1 à 4 par jour, voire une tous les 2 jours, c\'est normal si elles sont molles.' });
+  if (since != null && since > 5) items.push({ lvl: 'alert', t: `Pas de selle depuis ${Math.floor(since)} jours`, d: 'Parlez-en au médecin, surtout s\'il pleure en poussant ou a le ventre dur.' });
+  else if (since != null && since > 3) { items.push({ lvl: 'warn', t: `Pas de selle depuis ${Math.floor(since)} jours`, d: 'Ça peut être normal s\'il est confortable et que les selles restent molles.' }); tips.push('Massage du ventre dans le sens des aiguilles d\'une montre et mouvements de « vélo » avec les jambes peuvent l\'aider.'); }
+  // 3. Consistance
+  const hard = stools.filter((e) => e.consistance === 'dure').length;
+  const recent = EV.filter((e) => e.t === 'couche' && e.couche !== 'pipi' && e.at >= now - 3 * DAY);
+  const liq = recent.filter((e) => e.consistance === 'liquide').length;
+  if (hard) { items.push({ lvl: 'warn', t: `${hard} selle${hard > 1 ? 's' : ''} dure${hard > 1 ? 's' : ''} sur la période`, d: 'Signe possible de constipation.' }); tips.push('Vérifiez la préparation des biberons : 1 mesurette rase pour 30 ml d\'eau, sans tasser. Ne changez pas de lait sans l\'avis du médecin.'); }
+  if (liq >= 3 && liq / Math.max(1, recent.length) >= 0.5) { items.push({ lvl: Math.floor(ageMo(now) ?? 2) < 3 ? 'alert' : 'warn', t: `${liq} selles liquides en 3 jours`, d: 'Chez un bébé de moins de 3 mois, des selles liquides répétées justifient d\'appeler le médecin, surtout avec fièvre, vomissements ou moins de couches mouillées.' }); }
+  if (!hard && !(liq >= 3)) {
+    const cons = {}; stools.forEach((e) => { if (e.consistance) cons[e.consistance] = (cons[e.consistance] || 0) + 1; });
+    const top = Object.entries(cons).sort((x, y) => y[1] - x[1]).map(([k]) => (CONSIST[k] || '').toLowerCase()).slice(0, 2).join(' ou ');
+    items.push({ lvl: 'ok', t: 'Consistance normale', d: top ? `Surtout ${top}.` : '' });
+  }
+  // 4. Couleurs
+  const flagged = EV.filter((e) => e.t === 'couche' && e.at >= now - 7 * DAY && ALERTES[e.couleur]);
+  if (flagged.length) { const c = flagged[0]; items.push({ lvl: 'alert', t: `Couleur à signaler : ${COULEURS[c.couleur][0].toLowerCase()} le ${dShort(c.at)}`, d: ALERTES[c.couleur] }); }
+  else {
+    const green = stools.filter((e) => e.couleur === 'vert').length;
+    items.push({ lvl: 'ok', t: 'Couleurs normales', d: green ? 'Le vert est fréquent avec le lait infantile (fer) : pas d\'inquiétude s\'il mange et grossit bien.' : 'Jaune, moutarde ou marron : tout va bien.' });
+  }
+  // 5. Tendance
+  if (n >= 5) {
+    const r = days.slice(0, 3), p = days.slice(3);
+    const cnt = (ds) => EV.filter((e) => e.t === 'couche' && e.couche !== 'pipi' && ds.some((d) => e.at >= d && e.at < addDays(d, 1))).length / ds.length;
+    const df = cnt(r) - cnt(p);
+    if (Math.abs(df) >= 1) items.push({ lvl: 'info', t: `Tendance : ${df > 0 ? 'plus' : 'moins'} de selles ces 3 derniers jours (${df > 0 ? '+' : '−'}${fr(Math.abs(df), 1)}/jour)`, d: '' });
+  }
+  if (!tips.length) tips.push('Rien de particulier à changer. Continuez à noter chaque change : un écart se repère vite sur plusieurs jours.');
+  return { items, tips, period: `${n} derniers jours complets` };
+}
+
+/* ----- Onglet Dodo ----- */
+function renderDodo(now) {
+  const t0 = sod(now);
+  $('#dodo-analysis').innerHTML = analysisHtml('Analyse du sommeil', analyseSleep(now));
+  const days = fullDays(['dodo'], now, 7), st = days.map((d) => sleepDay(d, now));
+  const live = ongoingSleep();
+  $('#dodo-kpis').innerHTML =
+    `<div class="kpi"><b>${st.length ? durShort(mean(st.map((s) => s.total))) : '—'}</b><span>de sommeil par jour (7 j)</span></div>` +
+    `<div class="kpi"><b>${st.length ? durShort(mean(st.map((s) => s.night))) : '—'}</b><span>la nuit, 19 h – 7 h (7 j)</span></div>` +
+    `<div class="kpi"><b>${st.length ? durShort(mean(st.map((s) => s.longest))) : '—'}</b><span>plus longue plage (moyenne)</span></div>` +
+    `<div class="kpi"><b>${live ? durShort(now - live.at) : (() => { const l = EV.find((e) => e.t === 'dodo' && e.end); return l ? durShort(now - l.end) : '—'; })()}</b><span>${live ? 'qu\'il dort (en cours)' : 'qu\'il est éveillé'}</span></div>`;
+  // Graphique par jour (nuit + jour) avec bande de repère
+  $('#dodo-range').innerHTML = [['7', '7 j'], ['14', '14 j'], ['30', '30 j']].map(([v, l]) => `<button data-dodorange="${v}" aria-pressed="${S.dodoRange === v}">${l}</button>`).join('');
+  const sl = EV.filter((e) => e.t === 'dodo');
+  const nd = Number(S.dodoRange);
+  const ds = []; for (let i = nd - 1; i >= 0; i--) ds.push(addDays(t0, -i));
+  const per = ds.map((d) => sleepDay(d, now));
+  const N = sleepNorms(ageMo(now));
+  const top = Math.max(20, Math.ceil(Math.max(...per.map((p) => p.total / HOUR)) + 1));
+  const step = Math.max(1, Math.ceil(nd / 6));
+  $('#dodo-chart').innerHTML = sl.length ? svgChart({
+    x0: -0.5, x1: nd - 0.5, y0: 0, y1: top,
+    yTicks: ticksFor(0, top, 4, (v) => v + ' h'),
+    xTicks: per.map((p, i) => ({ v: i, label: dShort(p.d) })).filter((t, i) => (nd - 1 - i) % step === 0),
+    draw: (sx, sy, g) => {
+      const bw = Math.max(2, (sx(1) - sx(0)) * 0.62);
+      let o = `<rect x="${g.L}" y="${sy(N.total[1]).toFixed(1)}" width="${g.W - g.L - g.R}" height="${(sy(N.total[0]) - sy(N.total[1])).toFixed(1)}" fill="var(--sleep-soft)" opacity=".9"/>`;
+      o += per.map((p, i) => {
+        if (!p.total) return '';
+        const x = (sx(i) - bw / 2).toFixed(1), nh = p.night / HOUR, th = p.total / HOUR, op = p.d === t0 ? 0.45 : 1;
+        return `<rect x="${x}" y="${sy(nh).toFixed(1)}" width="${bw.toFixed(1)}" height="${(sy(0) - sy(nh)).toFixed(1)}" fill="var(--sleep)" opacity="${op}"><title>${dShort(p.d)} : nuit ${durShort(p.night)}</title></rect>` +
+          `<rect x="${x}" y="${sy(th).toFixed(1)}" width="${bw.toFixed(1)}" height="${(sy(nh) - sy(th)).toFixed(1)}" fill="var(--sleep)" opacity="${op * 0.45}"><title>${dShort(p.d)} : journée ${durShort(p.day)} · total ${durShort(p.total)}</title></rect>`;
+      }).join('');
+      return o;
+    }
+  }) : `<div class="empty">Les dodos notés apparaîtront ici.</div>`;
+  // Rythme sur 7 jours (frise 0-24 h)
+  const rd = []; for (let i = 6; i >= 0; i--) rd.push(addDays(t0, -i));
+  const W = 340, L = 44, R = 8, rowH = 22, T = 6, H = T + rd.length * rowH + 20;
+  const sx = (h) => L + h / 24 * (W - L - R);
+  let svg = '';
+  for (const h of [0, 6, 12, 18, 24]) svg += `<line class="grid" x1="${sx(h)}" x2="${sx(h)}" y1="${T}" y2="${H - 18}"/><text class="tk" x="${sx(h)}" y="${H - 6}" text-anchor="middle">${h} h</text>`;
+  rd.forEach((d, k) => {
+    const y = T + k * rowH;
+    svg += `<text class="tk" x="${L - 6}" y="${y + 14}" text-anchor="end">${d === t0 ? 'Auj.' : dShort(d)}</text><rect x="${L}" y="${y + 3}" width="${W - L - R}" height="${rowH - 6}" rx="4" fill="var(--surface-2)"/>`;
+    for (const e of sl) {
+      const s = Math.max(e.at, d), en = Math.min(e.end || now, addDays(d, 1));
+      if (en <= s) continue;
+      const h1 = (s - d) / HOUR, h2 = (en - d) / HOUR;
+      svg += `<rect x="${sx(h1).toFixed(1)}" y="${y + 3}" width="${Math.max(1.5, sx(h2) - sx(h1)).toFixed(1)}" height="${rowH - 6}" rx="3" fill="var(--sleep)" opacity="${e.end ? 0.9 : 0.5}"><title>${hm(e.at)} → ${e.end ? hm(e.end) : 'en cours'}</title></rect>`;
+    }
+  });
+  $('#dodo-rythme').innerHTML = sl.length ? `<svg class="chart" viewBox="0 0 ${W} ${H}" role="img">${svg}</svg>` : `<div class="empty">Pas encore de dodo noté.</div>`;
+  // Historique
+  const from = addDays(t0, -(S.dodoDays - 1));
+  const hist = sl.filter((e) => e.at >= from);
+  $('#dodo-hist').innerHTML = hist.length ? groupByDay(hist).map(([d, l]) => {
+    const s = sleepDay(d, now);
+    return `<div class="day"><h3><span>${esc(dayLabel(d))}</span><small>${durShort(s.total)} de sommeil</small></h3><div class="list">${l.map((e) => rowHtml(e, now)).join('')}</div></div>`;
+  }).join('') : `<div class="empty">Aucun dodo sur la période.</div>`;
+  $('#more-dodo').hidden = !sl.length || sl[sl.length - 1].at >= from;
+}
+
+/* ----- Onglet Couches ----- */
+function renderCouches(now) {
+  const t0 = sod(now);
+  $('#couche-analysis').innerHTML = analysisHtml('Analyse des couches', analyseDiapers(now));
+  const days = fullDays(['couche'], now, 7), n = days.length;
+  const cs = EV.filter((e) => e.t === 'couche');
+  const inDays = cs.filter((e) => n && e.at >= days[n - 1] && e.at < addDays(days[0], 1));
+  const lastS = cs.find((e) => e.couche !== 'pipi');
+  $('#couche-kpis').innerHTML =
+    `<div class="kpi"><b>${n ? fr(inDays.filter((e) => e.couche !== 'caca').length / n, 1) : '—'}</b><span>couches mouillées par jour (7 j)</span></div>` +
+    `<div class="kpi"><b>${n ? fr(inDays.filter((e) => e.couche !== 'pipi').length / n, 1) : '—'}</b><span>selles par jour (7 j)</span></div>` +
+    `<div class="kpi"><b>${lastS ? durShort(now - lastS.at) : '—'}</b><span>depuis la dernière selle</span></div>` +
+    `<div class="kpi"><b>${cs[0] ? durShort(now - cs[0].at) : '—'}</b><span>depuis le dernier change</span></div>`;
+  // Graphique pipi / selles par jour
+  const nd = 14, ds = []; for (let i = nd - 1; i >= 0; i--) ds.push(addDays(t0, -i));
+  const per = ds.map((d) => { const l = cs.filter((e) => e.at >= d && e.at < addDays(d, 1)); return { d, pipi: l.filter((e) => e.couche === 'pipi').length, selles: l.filter((e) => e.couche !== 'pipi').length }; });
+  const top = Math.max(6, ...per.map((p) => p.pipi + p.selles)) + 1;
+  $('#couche-chart').innerHTML = cs.length ? svgChart({
+    h: 190, x0: -0.5, x1: nd - 0.5, y0: 0, y1: top,
+    yTicks: ticksFor(0, top, 3, (v) => v),
+    xTicks: per.map((p, i) => ({ v: i, label: dShort(p.d) })).filter((t, i) => (nd - 1 - i) % 3 === 0),
+    draw: (sx, sy) => {
+      const bw = (sx(1) - sx(0)) * 0.62;
+      return per.map((p, i) => {
+        const x = (sx(i) - bw / 2).toFixed(1), op = p.d === t0 ? 0.45 : 1;
+        return (p.pipi ? `<rect x="${x}" y="${sy(p.pipi).toFixed(1)}" width="${bw.toFixed(1)}" height="${(sy(0) - sy(p.pipi)).toFixed(1)}" fill="var(--diaper)" opacity="${op}"><title>${dShort(p.d)} : ${p.pipi} pipi</title></rect>` : '') +
+          (p.selles ? `<rect x="${x}" y="${sy(p.pipi + p.selles).toFixed(1)}" width="${bw.toFixed(1)}" height="${(sy(p.pipi) - sy(p.pipi + p.selles)).toFixed(1)}" fill="var(--stool)" opacity="${op}"><title>${dShort(p.d)} : ${p.selles} selle(s)</title></rect>` : '');
+      }).join('');
+    }
+  }) : `<div class="empty">Les couches notées apparaîtront ici.</div>`;
+  // Dernières selles
+  const st = cs.filter((e) => e.couche !== 'pipi').slice(0, 12);
+  $('#couche-selles').innerHTML = st.length ? `<div class="stools">${st.map((e) => `<button class="stool" data-ev="${esc(e.id)}"><span class="sw" style="background:${e.couleur && COULEURS[e.couleur] ? COULEURS[e.couleur][1] : 'var(--line)'}"></span><span><b>${dShort(e.at)} ${hm(e.at)}</b><small>${esc([e.couleur && COULEURS[e.couleur] ? COULEURS[e.couleur][0] : '', CONSIST[e.consistance] || ''].filter(Boolean).join(' · ') || 'Aspect non noté')}</small></span>${ALERTES[e.couleur] ? '<span class="flag">!</span>' : ''}</button>`).join('')}</div>` : `<div class="empty">Aucune selle notée.</div>`;
+  // Historique
+  const from = addDays(t0, -(S.coucheDays - 1));
+  const hist = cs.filter((e) => e.at >= from);
+  $('#couche-hist').innerHTML = hist.length ? groupByDay(hist).map(([d, l]) => {
+    const p = l.filter((e) => e.couche !== 'caca').length, s = l.filter((e) => e.couche !== 'pipi').length;
+    return `<div class="day"><h3><span>${esc(dayLabel(d))}</span><small>${p} mouillée${p > 1 ? 's' : ''} · ${s} selle${s > 1 ? 's' : ''}</small></h3><div class="list">${l.map((e) => rowHtml(e, now)).join('')}</div></div>`;
+  }).join('') : `<div class="empty">Aucune couche sur la période.</div>`;
+  $('#more-couche').hidden = !cs.length || cs[cs.length - 1].at >= from;
 }
 
 /* ----- Export ----- */
@@ -1182,12 +1516,15 @@ document.addEventListener('click', (e) => {
   if (t.dataset.bibrange) { S.bibRange = t.dataset.bibrange; render(); return; }
   if (t.dataset.gkind) { S.growth = t.dataset.gkind; render(); return; }
   if (t.dataset.xrange) { S.xRange = t.dataset.xrange; render(); return; }
+  if (t.dataset.dodorange) { S.dodoRange = t.dataset.dodorange; render(); return; }
 });
 document.addEventListener('change', (e) => { const x = e.target.dataset && e.target.dataset.xincl; if (x) { S.xIncl[x] = e.target.checked; render(); } });
 $('#add-measure').onclick = () => openSheet('mesure');
 $('#btn-settings').onclick = () => openSheet('reglages');
 $('#more-journal').onclick = () => { S.journalDays += 7; render(); };
 $('#more-bib').onclick = () => { S.bibDays += 14; render(); };
+$('#more-dodo').onclick = () => { S.dodoDays += 7; render(); };
+$('#more-couche').onclick = () => { S.coucheDays += 7; render(); };
 $('#scrim').onclick = closeSheet;
 document.addEventListener('keydown', (e) => { if (e.key === 'Escape') { if (current) closeSheet(); else if (!$('#report').hidden) $('#report').hidden = true; } });
 $('#x-csv').onclick = () => {
