@@ -201,6 +201,10 @@ td.dim { color: var(--muted); }
 .add-sm.sleep { background: var(--sleep-soft); color: var(--sleep); }
 .add-sm.diaper { background: var(--diaper-soft); color: var(--diaper); }
 
+.bu { background: var(--milk-soft); color: var(--fg); border-radius: 12px; padding: 10px 12px; margin: -4px 0 16px; font-size: 15px; }
+.bu b { color: var(--milk); font-size: 18px; }
+.bu span { color: var(--muted); font-size: 13px; }
+.bu .err { color: var(--warn); font-size: 14px; }
 /* Onglets */
 .tabs { position: fixed; left: 0; right: 0; bottom: 0; z-index: 20; background: var(--surface); border-top: 1px solid var(--line); padding-bottom: env(safe-area-inset-bottom); padding-left: env(safe-area-inset-left); padding-right: env(safe-area-inset-right); }
 .tabs .in { max-width: 600px; margin: 0 auto; display: grid; grid-template-columns: repeat(6, minmax(0, 1fr)); }
@@ -445,7 +449,7 @@ const FIREBASE_CONFIG = {
   appId: "1:440010683437:web:9d81d1297c138baab834a4"
 };
 
-const APP_VERSION = '1.1.2';
+const APP_VERSION = '1.1.3';
 const FB_VER = '10.12.2';
 
 (() => {
@@ -488,6 +492,9 @@ const ICONS = {
 const CLS = { biberon: 'milk', dodo: 'sleep', couche: 'diaper' };
 const COUCHE = { pipi: 'Pipi', caca: 'Caca', mixte: 'Pipi + caca' };
 const LAIT = { infantile: 'Lait infantile', maternel: 'Lait maternel' };
+/* Volume final du biberon pour 1 ml d'eau : la poudre ajoute du volume (150 ml d'eau + 5 mesurettes ≈ 170 ml sur les graduations). */
+const POUDRE = 170 / 150;
+const buFrom = (prep, reste, lait) => Math.max(0, Math.round(prep - reste / (lait === 'maternel' ? 1 : POUDRE)));
 const COULEURS = {
   jaune: ['Jaune', '#e8c33a'], moutarde: ['Moutarde', '#c49a2a'], orange: ['Orangé', '#d9822b'], vert: ['Vert', '#6e8b3d'],
   marron: ['Marron', '#7a5230'], noir: ['Noir', '#2b2420'], rouge: ['Avec du sang', '#b3261e'], blanc: ['Blanc / gris pâle', '#e8e4d8']
@@ -795,7 +802,7 @@ function groupByDay(list) {
 }
 function rowHtml(e, now) {
   let t = '', s = [], hs = '';
-  if (e.t === 'biberon') { t = `Biberon · ${e.ml || '?'} ml`; if (e.lait) s.push(LAIT[e.lait]); }
+  if (e.t === 'biberon') { t = `Biberon · ${e.ml || '?'} ml`; if (e.reste) s.push(`préparé ${e.prep} ml · reste ${e.reste} ml`); if (e.lait) s.push(LAIT[e.lait]); }
   else if (e.t === 'dodo') {
     if (e.end) { t = `Dodo · ${dur(e.end - e.at)}`; hs = '→ ' + hm(e.end); }
     else { t = `Dodo · <span class="live-tag">en cours</span>`; hs = dur(now - e.at); }
@@ -1277,12 +1284,12 @@ function renderExport(now) {
 function csvCell(v) { const s = v == null ? '' : String(v); return /[;"\n\r]/.test(s) ? '"' + s.replace(/"/g, '""') + '"' : s; }
 function buildCsv(now) {
   const { evs, mes } = exportData(now);
-  const head = ['Date', 'Heure', 'Type', 'Quantité (ml)', 'Lait', 'Fin du dodo', 'Durée dodo (min)', 'Couche', 'Couleur selles', 'Consistance', 'Quantité selles', 'Poids (kg)', 'Taille (cm)', 'Périmètre crânien (cm)', 'Note', 'Saisi par'];
+  const head = ['Date', 'Heure', 'Type', 'Bu (ml d\'eau)', 'Préparé (ml d\'eau)', 'Reste (ml)', 'Lait', 'Fin du dodo', 'Durée dodo (min)', 'Couche', 'Couleur selles', 'Consistance', 'Quantité selles', 'Poids (kg)', 'Taille (cm)', 'Périmètre crânien (cm)', 'Note', 'Saisi par'];
   const rows = [];
   const dfr = (ms) => new Date(ms).toLocaleDateString('fr-FR');
   const dec = (v, d) => v == null || v === '' ? '' : Number(v).toFixed(d).replace('.', ',');
-  for (const e of evs) rows.push({ ms: e.at, r: [dfr(e.at), hm(e.at), e.t === 'biberon' ? 'Biberon' : e.t === 'dodo' ? 'Dodo' : 'Couche', e.t === 'biberon' ? e.ml : '', e.t === 'biberon' ? (LAIT[e.lait] || '') : '', e.end ? dfr(e.end) + ' ' + hm(e.end) : (e.t === 'dodo' ? 'en cours' : ''), e.t === 'dodo' && e.end ? Math.round((e.end - e.at) / 60000) : '', e.t === 'couche' ? COUCHE[e.couche] || '' : '', e.couleur ? COULEURS[e.couleur][0] : '', e.consistance ? CONSIST[e.consistance] : '', e.quantite ? QTE[e.quantite] : '', '', '', '', e.note || '', whoName(e.by)] });
-  for (const m of mes) rows.push({ ms: keyMs(m.date), r: [dfr(keyMs(m.date)), '', 'Mesure', '', '', '', '', '', '', '', '', dec(m.poids, 3), dec(m.taille, 1), dec(m.pc, 1), m.note || '', whoName(m.by)] });
+  for (const e of evs) rows.push({ ms: e.at, r: [dfr(e.at), hm(e.at), e.t === 'biberon' ? 'Biberon' : e.t === 'dodo' ? 'Dodo' : 'Couche', e.t === 'biberon' ? e.ml : '', e.t === 'biberon' ? (e.prep || e.ml) : '', e.t === 'biberon' ? (e.reste || 0) : '', e.t === 'biberon' ? (LAIT[e.lait] || '') : '', e.end ? dfr(e.end) + ' ' + hm(e.end) : (e.t === 'dodo' ? 'en cours' : ''), e.t === 'dodo' && e.end ? Math.round((e.end - e.at) / 60000) : '', e.t === 'couche' ? COUCHE[e.couche] || '' : '', e.couleur ? COULEURS[e.couleur][0] : '', e.consistance ? CONSIST[e.consistance] : '', e.quantite ? QTE[e.quantite] : '', '', '', '', e.note || '', whoName(e.by)] });
+  for (const m of mes) rows.push({ ms: keyMs(m.date), r: [dfr(keyMs(m.date)), '', 'Mesure', '', '', '', '', '', '', '', '', '', '', dec(m.poids, 3), dec(m.taille, 1), dec(m.pc, 1), m.note || '', whoName(m.by)] });
   rows.sort((a, b) => a.ms - b.ms);
   return '﻿' + [head, ...rows.map((x) => x.r)].map((r) => r.map(csvCell).join(';')).join('\r\n');
 }
@@ -1350,14 +1357,20 @@ function openSheet(type, item) {
   let title = '', body = '', btnCls = '', save = ed ? 'Enregistrer' : 'Ajouter';
   if (type === 'biberon') {
     const lastB = EV.find((e) => e.t === 'biberon');
-    const ml = item ? item.ml : (lastB && lastB.ml) || Number(lsGet('ml')) || 120;
+    const ml = item ? (item.prep || item.ml) : (lastB && (lastB.prep || lastB.ml)) || Number(lsGet('ml')) || 150;
+    const reste = item && item.reste ? item.reste : 0;
     const lait = item ? item.lait : (lastB && lastB.lait) || 'infantile';
     title = 'Biberon'; btnCls = 'milk';
     body = `
-      <div class="field"><span class="lab">Quantité bue (ml)</span>
-        <div class="stepper"><button type="button" data-step="-10" aria-label="Moins 10 ml">−</button><input class="inp" id="f-ml" type="number" inputmode="numeric" min="0" max="400" step="5" value="${esc(ml)}" aria-label="Quantité en ml"><button type="button" data-step="10" aria-label="Plus 10 ml">+</button></div>
-        <div class="chips">${[60, 90, 120, 150, 180, 210, 240].map((v) => `<button type="button" class="chip" data-ml="${v}">${v}</button>`).join('')}</div>
+      <div class="field"><span class="lab">Biberon préparé (ml d'eau)</span>
+        <div class="stepper"><button type="button" data-step="-10" data-for="f-ml" aria-label="Moins 10 ml">−</button><input class="inp" id="f-ml" type="number" inputmode="numeric" min="0" max="400" step="5" value="${esc(ml)}" aria-label="Eau en ml"><button type="button" data-step="10" data-for="f-ml" aria-label="Plus 10 ml">+</button></div>
+        <div class="chips">${[90, 120, 150, 180, 210].map((v) => `<button type="button" class="chip" data-ml="${v}">${v}</button>`).join('')}</div>
       </div>
+      <div class="field"><span class="lab">Reste dans le biberon (ml, sur les graduations)</span>
+        <div class="stepper"><button type="button" data-step="-10" data-for="f-reste" aria-label="Moins 10 ml">−</button><input class="inp" id="f-reste" type="number" inputmode="numeric" min="0" max="400" step="5" value="${esc(reste)}" aria-label="Reste en ml"><button type="button" data-step="10" data-for="f-reste" aria-label="Plus 10 ml">+</button></div>
+        <div class="chips">${[0, 10, 20, 30, 40, 50].map((v) => `<button type="button" class="chip" data-reste="${v}">${v}</button>`).join('')}</div>
+      </div>
+      <div class="bu" id="f-bu"></div>
       <div class="field"><span class="lab">Lait</span><div class="seg milk">${Object.keys(LAIT).map((v) => `<input type="radio" name="lait" id="lait-${v}" value="${v}" ${lait === v ? 'checked' : ''}><label for="lait-${v}">${v === 'infantile' ? 'Infantile' : 'Maternel'}</label>`).join('')}</div></div>
       <div class="field"><label for="f-at">Heure</label><input class="inp" id="f-at" type="datetime-local" value="${toInput(item ? item.at : now)}"></div>`;
   } else if (type === 'dodo') {
@@ -1419,8 +1432,19 @@ function closeSheet() { $('#sheet').hidden = true; $('#scrim').hidden = true; cu
 function wireSheet() {
   const sh = $('#sheet');
   $('#sheet-x').onclick = closeSheet;
-  sh.querySelectorAll('[data-step]').forEach((b) => b.onclick = () => { const i = $('#f-ml'); i.value = Math.max(0, (Number(i.value) || 0) + Number(b.dataset.step)); });
-  sh.querySelectorAll('[data-ml]').forEach((b) => b.onclick = () => { $('#f-ml').value = b.dataset.ml; });
+  const upBu = () => {
+    const o = $('#f-bu'); if (!o) return;
+    const prep = Number($('#f-ml').value) || 0, reste = Number($('#f-reste').value) || 0, lait = radio('lait');
+    const tot = lait === 'maternel' ? prep : Math.round(prep * POUDRE);
+    o.innerHTML = reste > tot ? `<span class="err">Le reste dépasse le volume du biberon (${tot} ml avec la poudre).</span>` :
+      `Il a bu <b>${buFrom(prep, reste, lait)} ml</b> <span>(équivalent eau${lait !== 'maternel' ? ` · biberon de ${tot} ml avec la poudre` : ''})</span>`;
+  };
+  sh.querySelectorAll('[data-step]').forEach((b) => b.onclick = () => { const i = $('#' + (b.dataset.for || 'f-ml')); i.value = Math.max(0, (Number(i.value) || 0) + Number(b.dataset.step)); upBu(); });
+  sh.querySelectorAll('[data-ml]').forEach((b) => b.onclick = () => { $('#f-ml').value = b.dataset.ml; upBu(); });
+  sh.querySelectorAll('[data-reste]').forEach((b) => b.onclick = () => { $('#f-reste').value = b.dataset.reste; upBu(); });
+  ['#f-ml', '#f-reste'].forEach((q) => { const i = $(q); if (i) i.oninput = upBu; });
+  sh.querySelectorAll('input[name="lait"]').forEach((r) => r.addEventListener('change', upBu));
+  upBu();
   const og = $('#f-ongoing'); if (og) og.onchange = () => { $('#end-wrap').hidden = og.checked; };
   sh.querySelectorAll('input[name="couche"]').forEach((r) => r.onchange = () => { $('#aspect').hidden = r.value === 'pipi'; });
   const showAlert = () => { const c = sh.querySelector('input[name="couleur"]:checked'); const a = $('#f-alert'); if (!a) return; a.hidden = !(c && ALERTES[c.value]); a.textContent = c && ALERTES[c.value] ? ALERTES[c.value] : ''; };
@@ -1470,9 +1494,12 @@ function submitSheet() {
   if (at > Date.now() + 5 * 60000) { err.textContent = "L'heure est dans le futur."; return; }
   const ev = { id: old ? old.id : newId(), t: type, at, end: null, ml: null, lait: null, couche: null, couleur: null, consistance: null, quantite: null, note, by, ts: Date.now() };
   if (type === 'biberon') {
-    const ml = Math.round(Number($('#f-ml').value));
-    if (!ml || ml < 1 || ml > 400) { err.textContent = 'Indiquez une quantité entre 1 et 400 ml.'; return; }
-    ev.ml = ml; ev.lait = radio('lait'); lsSet('ml', String(ml));
+    const prep = Math.round(Number($('#f-ml').value)), reste = Math.round(Number($('#f-reste').value) || 0), lait = radio('lait');
+    if (!prep || prep < 1 || prep > 400) { err.textContent = 'Indiquez la quantité d\'eau préparée (entre 1 et 400 ml).'; return; }
+    if (reste < 0 || reste > (lait === 'maternel' ? prep : Math.round(prep * POUDRE))) { err.textContent = 'Le reste ne peut pas dépasser le volume du biberon.'; return; }
+    ev.lait = lait; ev.prep = prep; ev.reste = reste; ev.ml = buFrom(prep, reste, lait);
+    if (!ev.ml) { err.textContent = 'Il n\'a rien bu ? Supprimez plutôt le biberon ou notez-le en note.'; return; }
+    lsSet('ml', String(prep));
   } else if (type === 'dodo') {
     if (!$('#f-ongoing').checked) {
       const end = fromInput($('#f-end').value);
