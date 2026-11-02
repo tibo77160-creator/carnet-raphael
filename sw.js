@@ -1,5 +1,5 @@
 // Carnet de Raphaël — cache hors-ligne. Changez VERSION à chaque mise à jour.
-const VERSION = 'carnet-1.2.0';
+const VERSION = 'carnet-1.3.0';
 const SHELL = ['./', './index.html', './manifest.webmanifest', './icon-180.png'];
 self.addEventListener('install', (e) => { self.skipWaiting(); e.waitUntil(caches.open(VERSION).then((c) => c.addAll(SHELL)).catch(() => {})); });
 self.addEventListener('activate', (e) => {
