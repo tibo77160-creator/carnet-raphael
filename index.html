@@ -277,11 +277,15 @@ td.dim { color: var(--muted); }
 .seg.food.react label { font-size: 13px; flex-direction: column; gap: 0; }
 .primary.food { background: var(--food); color: var(--surface); }
 .add-sm.food { background: var(--food-soft); color: var(--food); }
+.subtabs { display: grid; grid-template-columns: 1fr 1fr; background: var(--surface-2); border: 1px solid var(--line); border-radius: 14px; padding: 4px; gap: 4px; }
+.subtabs button { border: 0; background: none; border-radius: 10px; padding: 10px 6px; font-weight: 700; font-size: 15px; color: var(--muted); }
+.subtabs button[aria-selected="true"] { background: var(--surface); color: var(--fg); box-shadow: 0 1px 3px rgba(0,0,0,.12); }
+#home-defi .dv-defi { margin-top: 0; }
 /* Onglets */
 .tabs { position: fixed; left: 0; right: 0; bottom: 0; z-index: 20; background: var(--surface); border-top: 1px solid var(--line); padding-bottom: env(safe-area-inset-bottom); padding-left: env(safe-area-inset-left); padding-right: env(safe-area-inset-right); }
-.tabs .in { max-width: 600px; margin: 0 auto; display: grid; grid-template-columns: repeat(6, minmax(0, 1fr)); }
-.tab { border: 0; background: none; padding: 8px 0 7px; display: flex; flex-direction: column; align-items: center; gap: 2px; font-size: 10.5px; min-width: 0; white-space: nowrap; font-weight: 600; color: var(--muted); }
-.tab svg { width: 22px; height: 22px; }
+.tabs .in { max-width: 600px; margin: 0 auto; display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); }
+.tab { border: 0; background: none; padding: 8px 0 7px; display: flex; flex-direction: column; align-items: center; gap: 2px; font-size: 11.5px; min-width: 0; white-space: nowrap; font-weight: 600; color: var(--muted); }
+.tab svg { width: 24px; height: 24px; }
 .tab[aria-current="page"] { color: var(--fg); }
 
 /* Feuille modale */
@@ -388,6 +392,7 @@ textarea.inp { min-height: 60px; resize: vertical; }
     <!-- ACCUEIL -->
     <section class="view" id="v-accueil">
       <div class="now" id="now"></div>
+      <div id="home-defi"></div>
       <div class="panel ring-panel" id="ring"></div>
       <div class="stats" id="stats" hidden></div>
       <div>
@@ -399,6 +404,7 @@ textarea.inp { min-height: 60px; resize: vertical; }
 
     <!-- BIBERONS -->
     <section class="view" id="v-bib" hidden>
+      <div class="subtabs" role="tablist" aria-label="Repas"><button data-sub="bib" role="tab">🍼 Biberons</button><button data-sub="diversif" role="tab">🥄 Diversif.</button></div>
       <div class="panel verdict" id="bib-verdict"></div>
       <div class="kpis" id="bib-kpis"></div>
       <div class="panel">
@@ -473,6 +479,7 @@ textarea.inp { min-height: 60px; resize: vertical; }
 
     <!-- DIVERSIFICATION -->
     <section class="view" id="v-diversif" hidden>
+      <div class="subtabs" role="tablist" aria-label="Repas"><button data-sub="bib" role="tab">🍼 Biberons</button><button data-sub="diversif" role="tab">🥄 Diversif.</button></div>
       <div id="dv-top"></div>
       <div class="dv-opts" id="dv-opts"></div>
       <div>
@@ -503,11 +510,10 @@ textarea.inp { min-height: 60px; resize: vertical; }
   <nav class="tabs" aria-label="Sections">
     <div class="in">
       <button class="tab" data-tab="accueil" aria-current="page"><svg viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M12 3.2 3 10.4V21h6.2v-6h5.6v6H21V10.4z"/></svg>Accueil</button>
-      <button class="tab" data-tab="bib"><svg viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M9.5 2h5v2.2l1.8 2.3c.45.57.7 1.28.7 2V20a2 2 0 0 1-2 2H9a2 2 0 0 1-2-2V8.5c0-.72.25-1.43.7-2l1.8-2.3z"/></svg>Biberons</button>
+      <button class="tab" data-tab="repas"><svg viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M14.5 2c2.5 0 4.5 2.6 4.5 5.8 0 2.6-1.4 4.8-3.3 5.5L15 22h-2.2l.9-8.7C11.8 12.6 10.4 10.4 10.4 7.8 10.4 4.6 12.1 2 14.5 2zM5 2h1.4v6H8V2h1.4v6.5c0 1.6-1 2.9-2.4 3.3L7.6 22H5.4l.6-10.2C4.6 11.4 3.6 10.1 3.6 8.5V2H5v6h0z"/></svg>Repas</button>
       <button class="tab" data-tab="dodo"><svg viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M20.5 14.6A8.5 8.5 0 1 1 9.4 3.5a7 7 0 0 0 11.1 11.1z"/></svg>Dodo</button>
       <button class="tab" data-tab="couches"><svg viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M3 6h18v3.5a9.5 9.5 0 0 1-6.2 8.9l-.8.3h-4l-.8-.3A9.5 9.5 0 0 1 3 9.5z"/></svg>Couches</button>
       <button class="tab" data-tab="croissance"><svg viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M3 20h18v2H3zM4 17l5-6 4 3 6-8 1.6 1.2-7.2 9.6-4-3L5.5 18.3z"/></svg>Croissance</button>
-      <button class="tab" data-tab="diversif"><svg viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M14.5 2c2.5 0 4.5 2.6 4.5 5.8 0 2.6-1.4 4.8-3.3 5.5L15 22h-2.2l.9-8.7C11.8 12.6 10.4 10.4 10.4 7.8 10.4 4.6 12.1 2 14.5 2zM5 2h1.4v6H8V2h1.4v6.5c0 1.6-1 2.9-2.4 3.3L7.6 22H5.4l.6-10.2C4.6 11.4 3.6 10.1 3.6 8.5V2H5v6h0z"/></svg>Diversif.</button>
     </div>
   </nav>
 </div>
@@ -534,7 +540,7 @@ const FIREBASE_CONFIG = {
   appId: "1:440010683437:web:9d81d1297c138baab834a4"
 };
 
-const APP_VERSION = '1.4.0';
+const APP_VERSION = '1.5.0';
 const FB_VER = '10.12.2';
 
 (() => {
@@ -636,7 +642,7 @@ function dayLabel(ms) {
 /* ---------- État ---------- */
 const S = {
   days: new Map(), measures: new Map(), config: {}, me: null,
-  tab: lsGet('tab') || 'accueil', journalDays: 3, bibDays: 7, bibRange: '14', dodoRange: '14', dodoDays: 7, coucheDays: 7, growth: 'poids',
+  tab: lsGet('tab') || 'accueil', repasSub: lsGet('repasSub') || 'bib', journalDays: 3, bibDays: 7, bibRange: '14', dodoRange: '14', dodoDays: 7, coucheDays: 7, growth: 'poids',
   xRange: '7j', xIncl: { biberon: true, dodo: true, couche: true, repas: true, mesure: true },
   syncKind: 'local'
 };
@@ -840,16 +846,20 @@ function render() {
   $('#baby-name').textContent = S.config.prenom || 'Raphaël';
   const at = ageText(now);
   $('#baby-age').textContent = at ? at : 'Date de naissance à renseigner (réglages)';
+  if (S.tab === 'bib' || S.tab === 'diversif') { S.repasSub = S.tab; S.tab = 'repas'; }
+  if (!['accueil', 'repas', 'dodo', 'couches', 'croissance', 'export'].includes(S.tab)) S.tab = 'accueil';
+  if (S.repasSub !== 'diversif') S.repasSub = 'bib';
   $$('.tab').forEach((t) => { if (t.dataset.tab === S.tab) t.setAttribute('aria-current', 'page'); else t.removeAttribute('aria-current'); });
-  if (!['accueil', 'bib', 'dodo', 'couches', 'croissance', 'diversif', 'export'].includes(S.tab)) S.tab = 'accueil';
-  ['accueil', 'bib', 'dodo', 'couches', 'croissance', 'diversif', 'export'].forEach((v) => { $('#v-' + v).hidden = v !== S.tab; });
+  $$('.subtabs button').forEach((b) => b.setAttribute('aria-selected', String(b.dataset.sub === S.repasSub)));
+  const view = S.tab === 'repas' ? S.repasSub : S.tab;
+  ['accueil', 'bib', 'dodo', 'couches', 'croissance', 'diversif', 'export'].forEach((v) => { $('#v-' + v).hidden = v !== view; });
   renderSync();
   if (S.tab === 'accueil') renderHome(now);
-  if (S.tab === 'bib') renderBib(now);
+  if (view === 'bib') renderBib(now);
   if (S.tab === 'dodo') renderDodo(now);
   if (S.tab === 'couches') renderCouches(now);
   if (S.tab === 'croissance') renderGrowth(now);
-  if (S.tab === 'diversif') renderDiversif(now);
+  if (view === 'diversif') renderDiversif(now);
   if (S.tab === 'export') renderExport(now);
 }
 
@@ -904,6 +914,7 @@ function ringHtml(now) {
       <li><i style="background:var(--sleep)"></i><span><b>${durShort(t.sleep)}</b> de sommeil</span></li>
       <li><i style="background:var(--diaper)"></i><span><b>${t.pipi}</b> pipi</span></li>
       <li><i style="background:var(--stool)"></i><span><b>${t.caca}</b> selle${t.caca > 1 ? 's' : ''}</span></li>
+      ${(() => { const nr = EV.filter((e) => e.t === 'repas' && e.at >= d0 && e.at < d1).length; return nr ? `<li><i style="background:var(--food)"></i><span><b>${nr}</b> repas 🥄</span></li>` : ''; })()}
     </ul></div>`;
 }
 function renderHome(now) {
@@ -922,6 +933,11 @@ function renderHome(now) {
     `<button class="card diaper" data-add="couche"><span class="lbl">${ICONS.couche}Couche</span><span class="big">${lastC ? durShort(now - lastC.at) : '—'}</span><span class="cap">${lastC ? esc(COUCHE[lastC.couche] || '') + ' à ' + hm(lastC.at) : 'Rien noté'}</span><span class="pill">+ Couche</span></button>`;
 
   const tot = totals(t0, addDays(t0, 1), now);
+  const amH = ageMonths(now), hasMeal = EV.some((e) => e.t === 'repas');
+  if (hasMeal || (amH != null && amH >= 4)) {
+    const sg = suggestion(foodStats(), amH);
+    $('#home-defi').innerHTML = `<button class="dv-defi" ${sg.k ? `data-food="${esc(sg.k)}"` : 'data-add="repas"'}><span class="dv-defi-e">${sg.k ? foodEmoji(sg.k) : '🥄'}</span><span><b>${esc(sg.txt)}</b><small>${esc(sg.sub)}</small></span><span class="dv-go">+ Repas</span></button>`;
+  } else $('#home-defi').innerHTML = '';
   $('#ring').innerHTML = ringHtml(now);
   $('#stats').innerHTML =
     `<div class="stat"><b>${tot.ml} ml</b><span>${tot.nb} biberon${tot.nb > 1 ? 's' : ''}</span></div>` +
@@ -1896,6 +1912,7 @@ document.addEventListener('click', (e) => {
   const t = e.target.closest('button, [data-add]');
   if (!t) return;
   if (t.dataset.tab) { S.tab = t.dataset.tab; lsSet('tab', S.tab); window.scrollTo(0, 0); render(); return; }
+  if (t.dataset.sub) { S.repasSub = t.dataset.sub; lsSet('repasSub', S.repasSub); render(); return; }
   if (t.dataset.add) { openSheet(t.dataset.add); return; }
   if (t.dataset.act === 'sleep') {
     const live = ongoingSleep();
