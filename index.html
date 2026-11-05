@@ -18,7 +18,7 @@
 :root {
   --bg: #eef1f8; --surface: #ffffff; --surface-2: #f5f7fc; --fg: #1a1f33; --muted: #5f6680; --line: #dde2ee;
   --milk: #1f6fd1; --milk-soft: #e2edfb; --sleep: #5a4bc4; --sleep-soft: #ebe8fb; --diaper: #0f7f70; --diaper-soft: #ddf3ef;
-  --grow: #b8325e; --grow-soft: #fbe4ec; --band1: rgba(184, 50, 94, .09); --band2: rgba(184, 50, 94, .17); --stool: #8a5a2b;
+  --grow: #b8325e; --grow-soft: #fbe4ec; --band1: rgba(184, 50, 94, .09); --band2: rgba(184, 50, 94, .17); --stool: #8a5a2b; --food: #d1601a; --food-soft: #fde8d7;
   --ok: #1f8a4c; --ok-soft: #dff3e7; --warn: #b54a1a; --warn-soft: #fbe6dc; --scrim: rgba(16, 20, 40, .45);
   --display: ui-rounded, "SF Pro Rounded", "Nunito", system-ui, sans-serif;
   --body: -apple-system, BlinkMacSystemFont, system-ui, "Segoe UI", Roboto, sans-serif;
@@ -28,7 +28,7 @@
   :root {
     --bg: #0d1020; --surface: #171b2e; --surface-2: #1e233a; --fg: #e9ebf5; --muted: #9ba2bd; --line: #2a3050;
     --milk: #6fa9ff; --milk-soft: #182a46; --sleep: #ab9fff; --sleep-soft: #26234a; --diaper: #45cdb6; --diaper-soft: #15302d;
-    --grow: #ff86ad; --grow-soft: #3a1a28; --band1: rgba(255, 134, 173, .10); --band2: rgba(255, 134, 173, .18); --stool: #c99a63;
+    --grow: #ff86ad; --grow-soft: #3a1a28; --band1: rgba(255, 134, 173, .10); --band2: rgba(255, 134, 173, .18); --stool: #c99a63; --food: #ff9a52; --food-soft: #3b2415;
     --ok: #5fd08e; --ok-soft: #16301f; --warn: #ff9a6b; --warn-soft: #3a2117; --scrim: rgba(0, 0, 0, .6);
     color-scheme: dark;
   }
@@ -213,6 +213,70 @@ td.dim { color: var(--muted); }
 .ring-side li { display: flex; align-items: center; gap: 8px; }
 .ring-side li i { width: 10px; height: 10px; border-radius: 50%; flex: none; }
 .ring-side li b { font-variant-numeric: tabular-nums; }
+
+/* Diversification */
+.ico.food { background: var(--food-soft); color: var(--food); }
+.dv-hero { display: flex; gap: 14px; align-items: center; background: linear-gradient(135deg, var(--food-soft), var(--surface)); border: 1px solid var(--line); border-radius: 20px; padding: 16px; }
+.dv-big { font-size: 46px; line-height: 1; flex: none; }
+.dv-hero h3 { margin: 0 0 4px; font-family: var(--display); font-size: 19px; }
+.dv-hero p { margin: 0; color: var(--muted); font-size: 14.5px; }
+.dv-defi { display: flex; align-items: center; gap: 12px; width: 100%; text-align: left; border: 2px dashed var(--food); background: var(--surface); border-radius: 18px; padding: 12px 14px; margin-top: 12px; }
+.dv-defi-e { font-size: 34px; flex: none; }
+.dv-defi b { display: block; font-size: 16px; }
+.dv-defi small { display: block; color: var(--muted); font-size: 13px; }
+.dv-defi span:nth-child(2) { flex: 1; min-width: 0; }
+.dv-go { background: var(--food); color: var(--surface); border-radius: 12px; padding: 8px 10px; font-weight: 700; font-size: 13.5px; white-space: nowrap; }
+.dv-count { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 6px 12px; margin-top: 14px; font-size: 14.5px; }
+.dv-count b { font-family: var(--display); font-size: 17px; }
+.dv-al { margin-top: 12px; }
+.dv-al .lab { display: block; font-size: 12.5px; font-weight: 700; color: var(--muted); text-transform: uppercase; letter-spacing: .05em; margin-bottom: 6px; }
+.dv-al > div { display: flex; flex-wrap: wrap; gap: 6px; }
+.dv-pill { border-radius: 999px; padding: 5px 10px; font-size: 13px; font-weight: 600; background: var(--surface-2); color: var(--muted); border: 1px solid var(--line); }
+.dv-pill.on { background: var(--ok-soft); color: var(--ok); border-color: transparent; }
+.dv-opts { display: flex; flex-direction: column; gap: 8px; }
+.dv-opt { display: flex; align-items: center; gap: 12px; width: 100%; text-align: left; background: var(--surface); border: 1px solid var(--line); border-radius: 14px; padding: 10px 12px; }
+.dv-opt > span:first-child { font-size: 24px; }
+.dv-opt > span:nth-child(2) { flex: 1; min-width: 0; }
+.dv-opt b { display: block; font-size: 15px; } .dv-opt small { display: block; font-size: 12.5px; color: var(--muted); }
+.dv-opt i { font-style: normal; font-weight: 700; font-size: 13px; padding: 4px 10px; border-radius: 999px; background: var(--surface-2); color: var(--muted); }
+.dv-opt[aria-pressed="true"] i { background: var(--ok-soft); color: var(--ok); }
+.dv-cat { margin-bottom: 14px; }
+.dv-cat h3 { font-size: 14px; margin: 0 0 8px; }
+.dv-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(96px, 1fr)); gap: 8px; }
+.dv-food { position: relative; display: flex; flex-direction: column; align-items: center; gap: 2px; padding: 10px 4px 8px; border-radius: 16px; border: 1.5px solid var(--line); background: var(--surface); min-width: 0; }
+.dv-food .dv-e { font-size: 28px; line-height: 1.1; filter: grayscale(.85); opacity: .55; }
+.dv-food .dv-n { font-size: 12px; font-weight: 600; text-align: center; line-height: 1.2; color: var(--muted); overflow-wrap: anywhere; }
+.dv-food.ok, .dv-food.test, .dv-food.revoir { border-color: var(--food); background: var(--food-soft); }
+.dv-food.ok .dv-e, .dv-food.test .dv-e, .dv-food.revoir .dv-e { filter: none; opacity: 1; }
+.dv-food.ok .dv-n, .dv-food.test .dv-n, .dv-food.revoir .dv-n { color: var(--fg); }
+.dv-food.revoir { border-color: var(--warn); background: var(--warn-soft); }
+.dv-food.locked { opacity: .55; border-style: dashed; }
+.dv-b { position: absolute; top: 4px; right: 5px; font-size: 11px; font-weight: 800; color: var(--food); }
+.dv-heart { position: absolute; top: 4px; left: 5px; font-size: 12px; }
+.dv-step { background: var(--surface); border: 1px solid var(--line); border-radius: 16px; margin-bottom: 8px; overflow: hidden; }
+.dv-step summary { list-style: none; cursor: pointer; padding: 12px 14px; font-weight: 700; display: flex; align-items: center; gap: 10px; }
+.dv-step summary::-webkit-details-marker { display: none; }
+.dv-step summary span { font-size: 22px; }
+.dv-step summary em { font-style: normal; color: var(--food); font-size: 13px; }
+.dv-step[open] summary { border-bottom: 1px solid var(--line); }
+.dv-step ul { list-style: none; margin: 0; padding: 10px 14px 14px; display: flex; flex-direction: column; gap: 9px; }
+.dv-step li { display: flex; gap: 10px; font-size: 14.5px; }
+.dv-step li span:first-child { font-size: 18px; flex: none; width: 24px; text-align: center; }
+.dv-pick { margin-bottom: 8px; }
+.dv-pick small { display: block; font-size: 12.5px; font-weight: 700; color: var(--muted); margin-bottom: 5px; }
+.dv-pick > div { display: flex; flex-wrap: wrap; gap: 6px; }
+.dv-pick input { position: absolute; opacity: 0; pointer-events: none; }
+.dv-pick label { border: 1.5px solid var(--line); background: var(--surface-2); border-radius: 999px; padding: 6px 11px; font-size: 14px; font-weight: 600; }
+.dv-pick input:checked + label { border-color: var(--food); background: var(--food-soft); color: var(--food); }
+.dv-pick input:disabled + label { opacity: .45; }
+.dv-pick input:focus-visible + label { outline: 2px solid var(--fg); outline-offset: 2px; }
+.stepper.food button { background: var(--food-soft); color: var(--food); }
+.seg.food input:checked + label { color: var(--food); background: var(--food-soft); }
+.seg.food .em { font-size: 20px; }
+.seg.food.react { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+.seg.food.react label { font-size: 13px; flex-direction: column; gap: 0; }
+.primary.food { background: var(--food); color: var(--surface); }
+.add-sm.food { background: var(--food-soft); color: var(--food); }
 /* Onglets */
 .tabs { position: fixed; left: 0; right: 0; bottom: 0; z-index: 20; background: var(--surface); border-top: 1px solid var(--line); padding-bottom: env(safe-area-inset-bottom); padding-left: env(safe-area-inset-left); padding-right: env(safe-area-inset-right); }
 .tabs .in { max-width: 600px; margin: 0 auto; display: grid; grid-template-columns: repeat(6, minmax(0, 1fr)); }
@@ -407,6 +471,18 @@ textarea.inp { min-height: 60px; resize: vertical; }
       </div>
     </section>
 
+    <!-- DIVERSIFICATION -->
+    <section class="view" id="v-diversif" hidden>
+      <div id="dv-top"></div>
+      <div class="dv-opts" id="dv-opts"></div>
+      <div>
+        <div class="row-h"><h2>Aliments découverts</h2><button class="add-sm food" data-add="repas">+ Repas</button></div>
+        <div id="dv-foods"></div>
+      </div>
+      <div><h2>Derniers repas</h2><div id="dv-meals"></div></div>
+      <div><h2>Le guide pas à pas</h2><div id="dv-guide"></div></div>
+    </section>
+
     <!-- EXPORT -->
     <section class="view" id="v-export" hidden>
       <div class="panel">
@@ -431,7 +507,7 @@ textarea.inp { min-height: 60px; resize: vertical; }
       <button class="tab" data-tab="dodo"><svg viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M20.5 14.6A8.5 8.5 0 1 1 9.4 3.5a7 7 0 0 0 11.1 11.1z"/></svg>Dodo</button>
       <button class="tab" data-tab="couches"><svg viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M3 6h18v3.5a9.5 9.5 0 0 1-6.2 8.9l-.8.3h-4l-.8-.3A9.5 9.5 0 0 1 3 9.5z"/></svg>Couches</button>
       <button class="tab" data-tab="croissance"><svg viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M3 20h18v2H3zM4 17l5-6 4 3 6-8 1.6 1.2-7.2 9.6-4-3L5.5 18.3z"/></svg>Croissance</button>
-      <button class="tab" data-tab="export"><svg viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M11 3h2v10.2l3.6-3.6 1.4 1.4-6 6-6-6 1.4-1.4 3.6 3.6zM4 19h16v2H4z"/></svg>Export</button>
+      <button class="tab" data-tab="diversif"><svg viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M14.5 2c2.5 0 4.5 2.6 4.5 5.8 0 2.6-1.4 4.8-3.3 5.5L15 22h-2.2l.9-8.7C11.8 12.6 10.4 10.4 10.4 7.8 10.4 4.6 12.1 2 14.5 2zM5 2h1.4v6H8V2h1.4v6.5c0 1.6-1 2.9-2.4 3.3L7.6 22H5.4l.6-10.2C4.6 11.4 3.6 10.1 3.6 8.5V2H5v6h0z"/></svg>Diversif.</button>
     </div>
   </nav>
 </div>
@@ -458,7 +534,7 @@ const FIREBASE_CONFIG = {
   appId: "1:440010683437:web:9d81d1297c138baab834a4"
 };
 
-const APP_VERSION = '1.3.1';
+const APP_VERSION = '1.4.0';
 const FB_VER = '10.12.2';
 
 (() => {
@@ -496,9 +572,10 @@ const ICONS = {
   biberon: '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9.5 2h5v2.2l1.8 2.3c.45.57.7 1.28.7 2V20a2 2 0 0 1-2 2H9a2 2 0 0 1-2-2V8.5c0-.72.25-1.43.7-2l1.8-2.3z" fill="currentColor"/></svg>',
   dodo: '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M20.5 14.6A8.5 8.5 0 1 1 9.4 3.5a7 7 0 0 0 11.1 11.1z" fill="currentColor"/></svg>',
   couche: '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 6h18v3.5a9.5 9.5 0 0 1-6.2 8.9l-.8.3h-4l-.8-.3A9.5 9.5 0 0 1 3 9.5z" fill="currentColor"/></svg>',
-  mesure: '<svg viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M3 20h18v2H3zM4 17l5-6 4 3 6-8 1.6 1.2-7.2 9.6-4-3L5.5 18.3z"/></svg>'
+  mesure: '<svg viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M3 20h18v2H3zM4 17l5-6 4 3 6-8 1.6 1.2-7.2 9.6-4-3L5.5 18.3z"/></svg>',
+  repas: '<svg viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M14.5 2c2.5 0 4.5 2.6 4.5 5.8 0 2.6-1.4 4.8-3.3 5.5L15 22h-2.2l.9-8.7C11.8 12.6 10.4 10.4 10.4 7.8 10.4 4.6 12.1 2 14.5 2zM5 2h1.4v6H8V2h1.4v6.5c0 1.6-1 2.9-2.4 3.3L7.6 22H5.4l.6-10.2C4.6 11.4 3.6 10.1 3.6 8.5V2H5v6h0z"/></svg>'
 };
-const CLS = { biberon: 'milk', dodo: 'sleep', couche: 'diaper' };
+const CLS = { biberon: 'milk', dodo: 'sleep', couche: 'diaper', repas: 'food' };
 const COUCHE = { pipi: 'Pipi', caca: 'Caca', mixte: 'Pipi + caca' };
 const LAIT = { infantile: 'Lait infantile', maternel: 'Lait maternel' };
 /* Lait utilisé (lu sur la boîte) : Novalac Allernova AR.
@@ -560,7 +637,7 @@ function dayLabel(ms) {
 const S = {
   days: new Map(), measures: new Map(), config: {}, me: null,
   tab: lsGet('tab') || 'accueil', journalDays: 3, bibDays: 7, bibRange: '14', dodoRange: '14', dodoDays: 7, coucheDays: 7, growth: 'poids',
-  xRange: '7j', xIncl: { biberon: true, dodo: true, couche: true, mesure: true },
+  xRange: '7j', xIncl: { biberon: true, dodo: true, couche: true, repas: true, mesure: true },
   syncKind: 'local'
 };
 let EV = [], MS = [];
@@ -764,14 +841,15 @@ function render() {
   const at = ageText(now);
   $('#baby-age').textContent = at ? at : 'Date de naissance à renseigner (réglages)';
   $$('.tab').forEach((t) => { if (t.dataset.tab === S.tab) t.setAttribute('aria-current', 'page'); else t.removeAttribute('aria-current'); });
-  if (!['accueil', 'bib', 'dodo', 'couches', 'croissance', 'export'].includes(S.tab)) S.tab = 'accueil';
-  ['accueil', 'bib', 'dodo', 'couches', 'croissance', 'export'].forEach((v) => { $('#v-' + v).hidden = v !== S.tab; });
+  if (!['accueil', 'bib', 'dodo', 'couches', 'croissance', 'diversif', 'export'].includes(S.tab)) S.tab = 'accueil';
+  ['accueil', 'bib', 'dodo', 'couches', 'croissance', 'diversif', 'export'].forEach((v) => { $('#v-' + v).hidden = v !== S.tab; });
   renderSync();
   if (S.tab === 'accueil') renderHome(now);
   if (S.tab === 'bib') renderBib(now);
   if (S.tab === 'dodo') renderDodo(now);
   if (S.tab === 'couches') renderCouches(now);
   if (S.tab === 'croissance') renderGrowth(now);
+  if (S.tab === 'diversif') renderDiversif(now);
   if (S.tab === 'export') renderExport(now);
 }
 
@@ -806,12 +884,13 @@ function ringHtml(now) {
   for (const e of EV) {
     if (e.at < d0 || e.at >= d1 || e.t === 'dodo') continue;
     if (e.t === 'biberon') { const [x, y] = P(hOf(e.at), RB); g += `<circle cx="${x}" cy="${y}" r="5.5" fill="var(--milk)" stroke="var(--surface)" stroke-width="1.5"><title>Biberon ${e.ml} ml à ${hm(e.at)}</title></circle>`; }
+    else if (e.t === 'repas') { const [x, y] = P(hOf(e.at), RB); g += `<circle cx="${x}" cy="${y}" r="6" fill="var(--food)" stroke="var(--surface)" stroke-width="1.5"><title>Repas à ${hm(e.at)}</title></circle>`; }
     else { const [x, y] = P(hOf(e.at), RD); g += `<circle cx="${x}" cy="${y}" r="5" fill="${e.couche === 'pipi' ? 'var(--diaper)' : 'var(--stool)'}" stroke="var(--surface)" stroke-width="1.5"><title>${COUCHE[e.couche] || 'Couche'} à ${hm(e.at)}</title></circle>`; }
   }
   const [hx1, hy1] = P(hn, RT - 11), [hx2, hy2] = P(hn, RT + 11);
   g += `<line x1="${hx1}" y1="${hy1}" x2="${hx2}" y2="${hy2}" stroke="var(--fg)" stroke-width="3" stroke-linecap="round"/>`;
   const last = EV.find((e) => e.at <= now);
-  const LBL = { biberon: ['Biberon', 'var(--milk)'], couche: ['Couche', 'var(--diaper)'] };
+  const LBL = { biberon: ['Biberon', 'var(--milk)'], couche: ['Couche', 'var(--diaper)'], repas: ['Repas', 'var(--food)'] };
   const lastTxt = last ? (last.t === 'dodo' ? (last.end ? ['Réveil', 'var(--sleep)'] : ['Dort', 'var(--sleep)']) : LBL[last.t]) : null;
   const lastTime = last ? (last.t === 'dodo' && last.end ? hm(last.end) : hm(last.at)) : '—';
   g += `<text x="${C}" y="${C - 14}" text-anchor="middle" style="fill:var(--muted);font-size:12px">Dernier</text>`;
@@ -869,6 +948,12 @@ function rowHtml(e, now) {
   else if (e.t === 'dodo') {
     if (e.end) { t = `Dodo · ${dur(e.end - e.at)}`; hs = '→ ' + hm(e.end); }
     else { t = `Dodo · <span class="live-tag">en cours</span>`; hs = dur(now - e.at); }
+  } else if (e.t === 'repas') {
+    const fs = (e.foods || []);
+    t = `${fs.slice(0, 3).map((k) => foodEmoji(k)).join('')} ${esc(fs.map((k) => foodName(k)).join(', ') || 'Repas')}`;
+    if (e.cc) s.push(`${e.cc} c. à café`);
+    if (e.gout && GOUT[e.gout]) s.push(GOUT[e.gout].join(' '));
+    if (e.reaction && e.reaction !== 'rien') { t += '<span class="flag">Réaction</span>'; s.push(REACT[e.reaction].join(' ')); }
   } else {
     t = `Couche · ${esc((COUCHE[e.couche] || '').toLowerCase())}`;
     if (e.couche !== 'pipi') {
@@ -1318,6 +1403,200 @@ function renderCouches(now) {
   $('#more-couche').hidden = !cs.length || cs[cs.length - 1].at >= from;
 }
 
+/* ============================================================
+   DIVERSIFICATION
+   Repères : Santé publique France / PNNS 2021 (« Pas à pas, votre enfant mange comme un grand »).
+   ============================================================ */
+const FCATS = [
+  ['legume', '🥕', 'Légumes'], ['fruit', '🍎', 'Fruits'], ['feculent', '🍚', 'Féculents'],
+  ['proteine', '🍗', 'Protéines'], ['gras', '🫒', 'Matières grasses'], ['allergene', '⭐', 'Allergènes à découvrir'], ['laitier', '🥛', 'Produits laitiers']
+];
+// [id, nom, emoji, catégorie, âge conseillé pour la suggestion (mois), allergène]
+const FOODS = [
+  ['carotte', 'Carotte', '🥕', 'legume', 4], ['courgette', 'Courgette', '🥒', 'legume', 4], ['haricot', 'Haricot vert', '🫛', 'legume', 4],
+  ['potiron', 'Potiron / butternut', '🎃', 'legume', 4], ['patate-douce', 'Patate douce', '🍠', 'legume', 4], ['panais', 'Panais', '🥕', 'legume', 4],
+  ['poireau', 'Blanc de poireau', '🌱', 'legume', 4], ['brocoli', 'Brocoli', '🥦', 'legume', 4], ['epinard', 'Épinard', '🥬', 'legume', 4],
+  ['petits-pois', 'Petits pois', '🟢', 'legume', 4], ['chou-fleur', 'Chou-fleur', '🥦', 'legume', 4], ['betterave', 'Betterave', '🟣', 'legume', 5],
+  ['avocat', 'Avocat', '🥑', 'legume', 5], ['tomate', 'Tomate', '🍅', 'legume', 6],
+  ['pomme', 'Pomme', '🍎', 'fruit', 4], ['poire', 'Poire', '🍐', 'fruit', 4], ['banane', 'Banane', '🍌', 'fruit', 4], ['peche', 'Pêche', '🍑', 'fruit', 4],
+  ['abricot', 'Abricot', '🍑', 'fruit', 5], ['mangue', 'Mangue', '🥭', 'fruit', 5], ['fraise', 'Fraise', '🍓', 'fruit', 6], ['myrtille', 'Myrtille', '🫐', 'fruit', 6],
+  ['pomme-de-terre', 'Pomme de terre', '🥔', 'feculent', 4], ['riz', 'Riz', '🍚', 'feculent', 5], ['pates', 'Pâtes', '🍝', 'feculent', 6, 'gluten'],
+  ['semoule', 'Semoule', '🌾', 'feculent', 6, 'gluten'], ['pain', 'Pain', '🥖', 'feculent', 8, 'gluten'], ['lentilles', 'Lentilles corail', '🫘', 'feculent', 7],
+  ['poulet', 'Poulet', '🍗', 'proteine', 6], ['dinde', 'Dinde', '🦃', 'proteine', 6], ['boeuf', 'Bœuf', '🥩', 'proteine', 6], ['jambon', 'Jambon blanc', '🍖', 'proteine', 7],
+  ['poisson', 'Poisson blanc', '🐟', 'proteine', 6, 'poisson'], ['saumon', 'Saumon', '🐟', 'proteine', 7, 'poisson'], ['oeuf', 'Œuf dur', '🥚', 'proteine', 6, 'oeuf'],
+  ['huile-colza', 'Huile de colza', '🫒', 'gras', 4], ['huile-noix', 'Huile de noix', '🫒', 'gras', 4], ['huile-olive', "Huile d'olive", '🫒', 'gras', 4],
+  ['arachide', "Pâte d'arachide", '🥜', 'allergene', 6, 'arachide'], ['amande', 'Amande en poudre', '🌰', 'allergene', 6, 'coque'], ['noisette', 'Noisette en poudre', '🌰', 'allergene', 7, 'coque'],
+  ['beurre', 'Beurre', '🧈', 'laitier', 4, 'lait'], ['yaourt', 'Yaourt', '🥛', 'laitier', 6, 'lait'], ['fromage', 'Fromage', '🧀', 'laitier', 8, 'lait'], ['petit-suisse', 'Petit-suisse', '🍮', 'laitier', 6, 'lait']
+].map(([id, n, e, cat, st, al]) => ({ id, n, e, cat, st, al: al || null }));
+const FOOD = Object.fromEntries(FOODS.map((f) => [f.id, f]));
+const ALLERGENES = [['oeuf', '🥚', 'Œuf'], ['poisson', '🐟', 'Poisson'], ['gluten', '🌾', 'Gluten'], ['arachide', '🥜', 'Arachide'], ['coque', '🌰', 'Fruits à coque']];
+const GOUT = { aime: ['😋', 'Adoré'], bof: ['😐', 'Bof'], refuse: ['🙅', 'Refusé'] };
+const REACT = { rien: ['👌', 'Rien'], rougeurs: ['🔴', 'Rougeurs'], boutons: ['🫧', 'Boutons'], vomi: ['🤮', 'Vomissement'], selles: ['💩', 'Selles bizarres'], autre: ['❓', 'Autre'] };
+const ORDER = ['carotte', 'courgette', 'haricot', 'potiron', 'huile-colza', 'patate-douce', 'pomme', 'panais', 'poire', 'poireau', 'banane', 'brocoli', 'pomme-de-terre', 'peche', 'epinard', 'petits-pois', 'chou-fleur', 'riz', 'abricot', 'betterave', 'avocat', 'mangue', 'poulet', 'oeuf', 'poisson', 'pates', 'semoule', 'dinde', 'boeuf', 'tomate', 'arachide', 'amande', 'fraise', 'myrtille', 'lentilles', 'saumon', 'jambon', 'noisette', 'pain', 'huile-noix', 'huile-olive', 'yaourt', 'petit-suisse', 'fromage', 'beurre'];
+
+const regle3j = () => S.config.regle3j !== false;
+const laitOk = () => S.config.aplvOk === true;
+const foodName = (k, ev) => FOOD[k] ? FOOD[k].n : (k.startsWith('x:') ? cap1(k.slice(2)) : k);
+const foodEmoji = (k) => FOOD[k] ? FOOD[k].e : '🍽️';
+function foodStats() {
+  const m = {};
+  const meals = EV.filter((e) => e.t === 'repas').slice().sort((a, b) => a.at - b.at);
+  for (const e of meals) for (const k of (e.foods || [])) {
+    const s = m[k] || (m[k] = { k, first: e.at, last: e.at, days: new Set(), n: 0, reaction: null, gouts: { aime: 0, bof: 0, refuse: 0 } });
+    s.last = e.at; s.n++; s.days.add(dayKey(e.at));
+    if (e.reaction && e.reaction !== 'rien') s.reaction = e.reaction;
+    if (e.gout && s.gouts[e.gout] != null) s.gouts[e.gout]++;
+  }
+  for (const s of Object.values(m)) {
+    s.status = s.reaction ? 'revoir' : (regle3j() && s.days.size < 3 ? 'test' : 'ok');
+  }
+  return m;
+}
+function stageOf(am) {
+  if (am == null) return 'debut';
+  if (am < 4) return 'avant';
+  if (am < 6) return 'debut';
+  if (am < 8) return 'repas';
+  if (am < 12) return 'morceaux';
+  return 'grand';
+}
+const STAGES = {
+  debut: { e: '🥄', t: '4 – 6 mois · Premières cuillères', items: [
+    ['🙌', 'Il est prêt quand il tient bien sa tête, se tient semi-assis et ouvre la bouche à la cuillère.'],
+    ['🥕', 'Purées très lisses de légumes ou de fruits, sans sel ni sucre ajoutés.'],
+    ['🥄', 'On commence par 2 ou 3 cuillères à café, au déjeuner, puis on augmente selon son appétit. Certains bébés arrivent vite à 100–150 g de légumes, d\'autres prennent leur temps : les deux sont normaux.'],
+    ['🫒', 'Dès le début, 1 cuillère à café d\'huile dans la purée (colza, noix ou olive).'],
+    ['🍼', 'Le lait reste l\'aliment principal : on ne supprime pas de biberon au début.'],
+    ['⭐', 'Retarder les allergènes ne protège pas des allergies : œuf bien cuit, poisson, gluten, arachide (en pâte) et fruits à coque (en poudre) se proposent tôt, en petites quantités. Avec son APLV, faites valider le programme par le pédiatre.']
+  ] },
+  repas: { e: '🍽️', t: '6 – 8 mois · Le midi devient un vrai repas', items: [
+    ['🥩', 'Protéines : 10 g par jour, à un seul repas. C\'est environ 2 cuillères à café de viande ou de poisson mixé, ou ¼ d\'œuf dur.'],
+    ['🍚', 'Féculents (pomme de terre, riz, pâtes, semoule) mélangés aux légumes.'],
+    ['🥣', 'Purées plus épaisses, puis écrasées à la fourchette.'],
+    ['🍎', 'Fruits en compote au goûter.'],
+    ['🍼', 'Le lait reste important : les biberons du matin, du goûter et du soir continuent.']
+  ] },
+  morceaux: { e: '🧒', t: '8 – 12 mois · Les petits morceaux', items: [
+    ['🍌', 'Petits morceaux fondants qu\'il peut attraper avec les doigts.'],
+    ['⏰', '4 repas par jour : petit-déjeuner, déjeuner, goûter et dîner.'],
+    ['🍽️', 'Le déjeuner peut devenir un repas complet, sans biberon.'],
+    ['🥩', 'Toujours environ 10 g de protéines par jour.']
+  ] },
+  grand: { e: '🎉', t: '12 mois et + · Comme les grands', items: [
+    ['🍝', 'Il mange presque comme vous, en textures adaptées et sans sel ajouté.'],
+    ['🥩', 'Environ 20 g de protéines par jour entre 1 et 2 ans.'],
+    ['🥛', 'Le lait et les laitages : à voir avec le pédiatre, à cause de l\'APLV.']
+  ] }
+};
+function suggestion(stats, am) {
+  const inTest = Object.values(stats).filter((s) => s.status === 'test').sort((a, b) => b.last - a.last)[0];
+  if (inTest && regle3j() && Date.now() - inTest.last < 3 * DAY) {
+    const j = inTest.days.has(dayKey(Date.now())) ? inTest.days.size : inTest.days.size + 1;
+    return { k: inTest.k, txt: `Jour ${Math.min(3, j)}/3 : on continue ${foodName(inTest.k).toLowerCase()}`, sub: inTest.days.has(dayKey(Date.now())) ? 'Déjà proposé aujourd\'hui, on reprend demain.' : 'Même aliment 3 jours de suite pour repérer une éventuelle réaction.' };
+  }
+  const a = am == null ? 4 : Math.max(4, am);
+  const next = ORDER.map((k) => FOOD[k]).find((f) => !stats[f.id] && f.st <= a + 0.5 && !(f.al === 'lait' && !laitOk()));
+  if (!next) return { k: null, txt: 'Bravo, il a tout goûté pour son âge ! 🏆', sub: 'Continuez à varier et à reproposer ce qu\'il a refusé.' };
+  return { k: next.id, txt: `Nouveau défi : ${next.n.toLowerCase()}`, sub: next.al && next.al !== 'lait' ? 'Allergène : une petite quantité, plutôt le matin ou le midi, pour pouvoir l\'observer.' : 'En purée lisse, quelques cuillères suffisent pour découvrir.' };
+}
+
+function renderDiversif(now) {
+  const am = ageMonths(now), st = stageOf(am), stats = foodStats();
+  const keys = Object.keys(stats);
+  const nCat = (c) => keys.filter((k) => FOOD[k] && FOOD[k].cat === c).length;
+  const alDone = ALLERGENES.filter(([a]) => keys.some((k) => FOOD[k] && FOOD[k].al === a && stats[k].status !== 'revoir'));
+  const sug = suggestion(stats, am);
+  const b = birthMs();
+  let hero;
+  if (st === 'avant') {
+    const d4 = b ? (() => { const x = new Date(b); x.setMonth(x.getMonth() + 4); return x.getTime(); })() : null;
+    const left = d4 ? Math.max(0, Math.ceil((d4 - sod(now)) / DAY)) : null;
+    hero = `<div class="dv-hero"><div class="dv-big">🍼</div><div><h3>Pour l'instant, que du lait !</h3><p>${left != null ? `Encore <b>${left} jours</b> avant ses 4 mois (le ${dLong(d4)}). ` : ''}La diversification commence entre 4 et 6 mois, quand il est prêt. Profitez-en pour lire le guide et en parler au pédiatre 👩‍⚕️.</p></div></div>`;
+  } else {
+    hero = `<div class="dv-hero"><div class="dv-big">${STAGES[st].e}</div><div><h3>${STAGES[st].t}</h3><p>${keys.length ? `${keys.length} aliment${keys.length > 1 ? 's' : ''} découvert${keys.length > 1 ? 's' : ''} 🎯` : 'Prêts pour la première cuillère ?'}</p></div></div>`;
+  }
+  const sugHtml = `<button class="dv-defi" ${sug.k ? `data-food="${esc(sug.k)}"` : 'data-add="repas"'}><span class="dv-defi-e">${sug.k ? foodEmoji(sug.k) : '🏆'}</span><span><b>${esc(sug.txt)}</b><small>${esc(sug.sub)}</small></span><span class="dv-go">+ Repas</span></button>`;
+  const counters = `<div class="dv-count"><span>🥕 <b>${nCat('legume')}</b> légumes</span><span>🍎 <b>${nCat('fruit')}</b> fruits</span><span>🍚 <b>${nCat('feculent')}</b> féculents</span><span>🍗 <b>${nCat('proteine')}</b> protéines</span></div>
+    <div class="dv-al"><span class="lab">⭐ Allergènes découverts : ${alDone.length}/${ALLERGENES.length}</span><div>${ALLERGENES.map(([a, e, n]) => `<span class="dv-pill ${alDone.some((x) => x[0] === a) ? 'on' : ''}">${e} ${n}</span>`).join('')}</div></div>`;
+  $('#dv-top').innerHTML = hero + (st === 'avant' ? '' : sugHtml) + counters;
+
+  // Réglages rapides
+  $('#dv-opts').innerHTML = `<button class="dv-opt" data-cfg="regle3j" aria-pressed="${regle3j()}"><span>🔁</span><span><b>Règle des 3 jours</b><small>${regle3j() ? 'Activée : un nouvel aliment 3 jours de suite avant le suivant' : 'Désactivée : vous variez librement'}</small></span><i>${regle3j() ? 'Oui' : 'Non'}</i></button>
+    <button class="dv-opt" data-cfg="aplvOk" aria-pressed="${laitOk()}"><span>🥛</span><span><b>Produits laitiers</b><small>${laitOk() ? 'Autorisés par le médecin' : 'En attente de l\'avis du médecin (APLV) 🔒'}</small></span><i>${laitOk() ? 'Oui' : 'Non'}</i></button>`;
+
+  // Aliments par catégorie
+  const ST_LBL = { ok: '✅', test: 'J', revoir: '⚠️' };
+  $('#dv-foods').innerHTML = FCATS.map(([c, e, n]) => {
+    const list = FOODS.filter((f) => f.cat === c);
+    const extra = c === 'legume' ? keys.filter((k) => k.startsWith('x:')) : [];
+    return `<div class="dv-cat"><h3>${e} ${n}</h3><div class="dv-grid">${list.map((f) => {
+      const s = stats[f.id], locked = f.al === 'lait' && !laitOk();
+      const badge = locked ? '🔒' : s ? (s.status === 'test' ? `${s.days.size}/3` : ST_LBL[s.status]) : '';
+      return `<button class="dv-food ${s ? s.status : ''} ${locked ? 'locked' : ''}" data-food="${f.id}" ${locked ? 'aria-disabled="true"' : ''}><span class="dv-e">${f.e}</span><span class="dv-n">${esc(f.n)}</span>${badge ? `<span class="dv-b">${badge}</span>` : ''}${s && s.gouts.aime > s.gouts.refuse && s.gouts.aime ? '<span class="dv-heart">💛</span>' : ''}</button>`;
+    }).join('')}${extra.map((k) => { const s = stats[k]; return `<button class="dv-food ${s.status}" data-food="${esc(k)}"><span class="dv-e">🍽️</span><span class="dv-n">${esc(foodName(k))}</span><span class="dv-b">${s.status === 'test' ? s.days.size + '/3' : ST_LBL[s.status]}</span></button>`; }).join('')}</div></div>`;
+  }).join('') + `<p class="fine">✅ validé · 1/3 en test · ⚠️ réaction notée, à revoir avec le pédiatre · 🔒 en attente d'avis médical · 💛 il adore. Touchez un aliment pour noter un repas.</p>`;
+
+  // Derniers repas
+  const meals = EV.filter((e) => e.t === 'repas').slice(0, 15);
+  $('#dv-meals').innerHTML = meals.length ? `<div class="list">${meals.map((e) => rowHtml(e, now)).join('')}</div>` : `<div class="empty">Aucun repas noté pour l'instant. Le premier sera un grand moment 📸</div>`;
+
+  // Guide
+  const order = ['debut', 'repas', 'morceaux', 'grand'];
+  const cur = st === 'avant' ? 'debut' : st;
+  $('#dv-guide').innerHTML = order.map((k) => `<details class="dv-step" ${k === cur ? 'open' : ''}><summary><span>${STAGES[k].e}</span>${STAGES[k].t}${k === cur ? (st === 'avant' ? ' <em>· bientôt</em>' : ' <em>· maintenant</em>') : ''}</summary><ul>${STAGES[k].items.map(([e, t]) => `<li><span>${e}</span><span>${t}</span></li>`).join('')}</ul></details>`).join('') +
+    `<div class="alert">🚨 Lèvres ou visage qui gonflent, gêne pour respirer, vomissements répétés ou malaise après un aliment : appelez le 15 immédiatement.</div>
+     <p class="fine">Rougeurs, boutons ou selles inhabituelles après un nouvel aliment : arrêtez-le et parlez-en au pédiatre. Repères : Santé publique France, « Pas à pas, votre enfant mange comme un grand ». La règle des 3 jours n'est plus obligatoire dans les recommandations, mais reste utile pour un bébé allergique.</p>`;
+}
+
+/* ----- Feuille « Repas » ----- */
+function repasBody(item, pre) {
+  const sel = new Set(item ? item.foods || [] : (pre && pre.foods) || []);
+  const autres = item ? (item.foods || []).filter((k) => k.startsWith('x:')).map((k) => foodName(k)).join(', ') : '';
+  const cc = item ? item.cc || 3 : 3;
+  const gout = item ? item.gout : '', react = item ? item.reaction || 'rien' : 'rien';
+  return `
+    <div class="field"><span class="lab">Qu'est-ce qu'il a mangé ?</span>
+      ${FCATS.map(([c, e, n]) => `<div class="dv-pick"><small>${e} ${n}</small><div>${FOODS.filter((f) => f.cat === c).map((f) => { const locked = f.al === 'lait' && !laitOk(); return `<input type="checkbox" name="food" id="fd-${f.id}" value="${f.id}" ${sel.has(f.id) ? 'checked' : ''} ${locked ? 'disabled' : ''}><label for="fd-${f.id}">${locked ? '🔒' : f.e} ${esc(f.n)}</label>`; }).join('')}</div></div>`).join('')}
+      <input class="inp" id="f-autres" placeholder="Autre aliment ? (séparez par des virgules)" value="${esc(autres)}">
+    </div>
+    <div class="field"><span class="lab">Combien ? (cuillères à café)</span>
+      <div class="stepper food"><button type="button" data-cc="-1" aria-label="Une cuillère de moins">−</button><input class="inp" id="f-cc" type="number" inputmode="numeric" min="0" max="60" value="${esc(cc)}" aria-label="Nombre de cuillères"><button type="button" data-cc="1" aria-label="Une cuillère de plus">+</button></div>
+      <div class="chips">${[1, 2, 3, 5, 8, 10, 15, 20].map((v) => `<button type="button" class="chip" data-ccset="${v}">${v}</button>`).join('')}</div>
+      <p class="hint" id="f-ccg"></p>
+    </div>
+    <div class="field"><span class="lab">Il a aimé ?</span><div class="seg food">${Object.entries(GOUT).map(([k, [e, l]]) => `<input type="radio" name="gout" id="gt-${k}" value="${k}" ${gout === k ? 'checked' : ''}><label for="gt-${k}"><span class="em">${e}</span> ${l}</label>`).join('')}</div></div>
+    <div class="field"><span class="lab">Une réaction ?</span><div class="seg food react">${Object.entries(REACT).map(([k, [e, l]]) => `<input type="radio" name="reaction" id="rc-${k}" value="${k}" ${react === k ? 'checked' : ''}><label for="rc-${k}"><span class="em">${e}</span> ${l}</label>`).join('')}</div></div>
+    <div class="alert" id="f-react" hidden>Arrêtez cet aliment et parlez-en au pédiatre. Si les lèvres ou le visage gonflent, s'il a du mal à respirer ou vomit à répétition : appelez le 15.</div>
+    <div class="field"><label for="f-at">Heure</label><input class="inp" id="f-at" type="datetime-local" value="${toInput(item ? item.at : Date.now())}"></div>`;
+}
+function wireRepas() {
+  const sh = $('#sheet'), cc = $('#f-cc'); if (!cc) return;
+  const upd = () => { const v = Number(cc.value) || 0; $('#f-ccg').textContent = v ? `≈ ${v * 5} g de purée` : ''; };
+  sh.querySelectorAll('[data-cc]').forEach((b) => b.onclick = () => { cc.value = Math.max(0, (Number(cc.value) || 0) + Number(b.dataset.cc)); upd(); });
+  sh.querySelectorAll('[data-ccset]').forEach((b) => b.onclick = () => { cc.value = b.dataset.ccset; upd(); });
+  cc.oninput = upd; upd();
+  const ra = () => { const r = radio('reaction'); $('#f-react').hidden = !r || r === 'rien'; };
+  sh.querySelectorAll('input[name="reaction"]').forEach((r) => r.onchange = ra); ra();
+}
+function readRepas(ev, err) {
+  const foods = [...document.querySelectorAll('#sheet input[name="food"]:checked')].map((i) => i.value);
+  const autres = $('#f-autres').value.split(',').map((x) => x.trim().toLowerCase()).filter(Boolean).slice(0, 5);
+  for (const a of autres) foods.push('x:' + a.replace(/[^a-zà-ÿ0-9 '-]/g, '').slice(0, 30));
+  if (!foods.length) { err.textContent = 'Choisissez au moins un aliment.'; return false; }
+  ev.foods = [...new Set(foods)]; ev.cc = Math.max(0, Math.round(Number($('#f-cc').value) || 0));
+  ev.gout = radio('gout'); ev.reaction = radio('reaction') || 'rien';
+  return true;
+}
+function repasToast(ev, before) {
+  const after = foodStats();
+  const fresh = ev.foods.filter((k) => !before[k]);
+  const validated = ev.foods.filter((k) => before[k] && before[k].status === 'test' && after[k] && after[k].status === 'ok');
+  if (ev.reaction && ev.reaction !== 'rien') return '⚠️ Réaction notée : parlez-en au pédiatre';
+  if (validated.length) return `🎉 C'est validé : ${validated.map((k) => foodName(k).toLowerCase()).join(', ')} !`;
+  if (fresh.length) return `✨ Nouvel aliment : ${fresh.map((k) => foodName(k).toLowerCase()).join(', ')} !`;
+  return 'Repas noté 🥄';
+}
+
 /* ----- Export ----- */
 const RANGES = [['24h', '24 h'], ['72h', '72 h'], ['7j', '1 semaine'], ['1m', '1 mois'], ['all', 'Tout']];
 function rangeFrom(r, now) {
@@ -1337,7 +1616,7 @@ function exportData(now) {
 }
 function renderExport(now) {
   $('#x-range').innerHTML = RANGES.map(([v, l]) => `<button class="chip" data-xrange="${v}" aria-pressed="${S.xRange === v}">${l}</button>`).join('');
-  $('#x-incl').innerHTML = [['biberon', 'Biberons'], ['dodo', 'Dodos'], ['couche', 'Couches'], ['mesure', 'Mesures']].map(([v, l]) => `<label class="check"><input type="checkbox" id="xi-${v}" data-xincl="${v}" ${S.xIncl[v] ? 'checked' : ''}> ${l}</label>`).join('');
+  $('#x-incl').innerHTML = [['biberon', 'Biberons'], ['dodo', 'Dodos'], ['couche', 'Couches'], ['repas', 'Repas'], ['mesure', 'Mesures']].map(([v, l]) => `<label class="check"><input type="checkbox" id="xi-${v}" data-xincl="${v}" ${S.xIncl[v] ? 'checked' : ''}> ${l}</label>`).join('');
   const { from, evs, mes } = exportData(now);
   const tot = totals(from, now + 1, now);
   const nDays = Math.max(1, (now - from) / DAY);
@@ -1354,11 +1633,11 @@ function renderExport(now) {
 function csvCell(v) { const s = v == null ? '' : String(v); return /[;"\n\r]/.test(s) ? '"' + s.replace(/"/g, '""') + '"' : s; }
 function buildCsv(now) {
   const { evs, mes } = exportData(now);
-  const head = ['Date', 'Heure', 'Type', 'Bu (ml d\'eau)', 'Préparé (ml d\'eau)', 'Reste (ml)', 'Lait', 'Fin du dodo', 'Durée dodo (min)', 'Couche', 'Couleur selles', 'Consistance', 'Quantité selles', 'Poids (kg)', 'Taille (cm)', 'Périmètre crânien (cm)', 'Note', 'Saisi par'];
+  const head = ['Date', 'Heure', 'Type', 'Bu (ml d\'eau)', 'Préparé (ml d\'eau)', 'Reste (ml)', 'Lait', 'Fin du dodo', 'Durée dodo (min)', 'Couche', 'Couleur selles', 'Consistance', 'Quantité selles', 'Poids (kg)', 'Taille (cm)', 'Périmètre crânien (cm)', 'Note', 'Saisi par', 'Aliments', 'Cuillères à café', 'Goût', 'Réaction'];
   const rows = [];
   const dfr = (ms) => new Date(ms).toLocaleDateString('fr-FR');
   const dec = (v, d) => v == null || v === '' ? '' : Number(v).toFixed(d).replace('.', ',');
-  for (const e of evs) rows.push({ ms: e.at, r: [dfr(e.at), hm(e.at), e.t === 'biberon' ? 'Biberon' : e.t === 'dodo' ? 'Dodo' : 'Couche', e.t === 'biberon' ? e.ml : '', e.t === 'biberon' ? (e.prep || e.ml) : '', e.t === 'biberon' ? (e.reste || 0) : '', e.t === 'biberon' ? (LAIT[e.lait] || '') : '', e.end ? dfr(e.end) + ' ' + hm(e.end) : (e.t === 'dodo' ? 'en cours' : ''), e.t === 'dodo' && e.end ? Math.round((e.end - e.at) / 60000) : '', e.t === 'couche' ? COUCHE[e.couche] || '' : '', e.couleur ? COULEURS[e.couleur][0] : '', e.consistance ? CONSIST[e.consistance] : '', e.quantite ? QTE[e.quantite] : '', '', '', '', e.note || '', whoName(e.by)] });
+  for (const e of evs) rows.push({ ms: e.at, r: [dfr(e.at), hm(e.at), e.t === 'biberon' ? 'Biberon' : e.t === 'dodo' ? 'Dodo' : e.t === 'repas' ? 'Repas' : 'Couche', e.t === 'biberon' ? e.ml : '', e.t === 'biberon' ? (e.prep || e.ml) : '', e.t === 'biberon' ? (e.reste || 0) : '', e.t === 'biberon' ? (LAIT[e.lait] || '') : '', e.end ? dfr(e.end) + ' ' + hm(e.end) : (e.t === 'dodo' ? 'en cours' : ''), e.t === 'dodo' && e.end ? Math.round((e.end - e.at) / 60000) : '', e.t === 'couche' ? COUCHE[e.couche] || '' : '', e.couleur ? COULEURS[e.couleur][0] : '', e.consistance ? CONSIST[e.consistance] : '', e.quantite ? QTE[e.quantite] : '', '', '', '', e.note || '', whoName(e.by), e.t === 'repas' ? (e.foods || []).map((k) => foodName(k)).join(', ') : '', e.t === 'repas' ? (e.cc || '') : '', e.gout && GOUT[e.gout] ? GOUT[e.gout][1] : '', e.t === 'repas' && e.reaction && REACT[e.reaction] ? REACT[e.reaction][1] : ''] });
   for (const m of mes) rows.push({ ms: keyMs(m.date), r: [dfr(keyMs(m.date)), '', 'Mesure', '', '', '', '', '', '', '', '', '', '', dec(m.poids, 3), dec(m.taille, 1), dec(m.pc, 1), m.note || '', whoName(m.by)] });
   rows.sort((a, b) => a.ms - b.ms);
   return '﻿' + [head, ...rows.map((x) => x.r)].map((r) => r.map(csvCell).join(';')).join('\r\n');
@@ -1421,7 +1700,7 @@ function openReport(now) {
    FEUILLES DE SAISIE
    ============================================================ */
 let current = null;
-function openSheet(type, item) {
+function openSheet(type, item, pre) {
   current = { type, item: item || null };
   const now = Date.now(), ed = !!item;
   let title = '', body = '', btnCls = '', save = ed ? 'Enregistrer' : 'Ajouter';
@@ -1472,6 +1751,9 @@ function openSheet(type, item) {
         <div class="field"><label for="f-pc">Crâne (cm)</label><input class="inp" id="f-pc" inputmode="decimal" placeholder="40,2" value="${item && item.pc ? fr(item.pc, 1) : ''}"></div>
       </div>
       <p class="hint" style="margin:-6px 0 14px">Remplissez seulement ce qui a été mesuré. Le poids peut aussi être saisi en grammes (5420).</p>`;
+  } else if (type === 'repas') {
+    title = 'Repas 🥄'; btnCls = 'food';
+    body = repasBody(item, pre);
   } else if (type === 'reglages') {
     title = 'Réglages'; save = 'Enregistrer';
     const me = (S.config.parents || {})[pkey(S.me)] || '';
@@ -1491,6 +1773,7 @@ function openSheet(type, item) {
       <div class="btns">
         <button class="primary ${btnCls}" id="f-save" type="submit">${save}</button>
         ${ed ? '<button class="danger" id="f-del" type="button">Supprimer</button>' : ''}
+        ${type === 'reglages' ? '<button class="secondary" id="f-export" type="button">📤 Export et résumé pour le pédiatre</button>' : ''}
         ${type === 'reglages' && MODE === 'firebase' ? '<button class="secondary" id="f-logout" type="button">Se déconnecter</button>' : ''}
       </div>
     </form>`;
@@ -1519,6 +1802,8 @@ function wireSheet() {
   sh.querySelectorAll('input[name="couche"]').forEach((r) => r.onchange = () => { $('#aspect').hidden = r.value === 'pipi'; });
   const showAlert = () => { const c = sh.querySelector('input[name="couleur"]:checked'); const a = $('#f-alert'); if (!a) return; a.hidden = !(c && ALERTES[c.value]); a.textContent = c && ALERTES[c.value] ? ALERTES[c.value] : ''; };
   sh.querySelectorAll('input[name="couleur"]').forEach((r) => r.onchange = showAlert); showAlert();
+  const ex = $('#f-export'); if (ex) ex.onclick = () => { closeSheet(); S.tab = 'export'; window.scrollTo(0, 0); render(); };
+  wireRepas();
   const lo = $('#f-logout'); if (lo) lo.onclick = async () => { closeSheet(); try { await FB.U.signOut(FB.auth); } catch {} };
   const del = $('#f-del');
   if (del) del.onclick = () => {
@@ -1580,14 +1865,18 @@ function submitSheet() {
       const other = ongoingSleep();
       if (other && (!old || other.id !== old.id)) { err.textContent = "Un dodo est déjà en cours : notez d'abord le réveil."; return; }
     }
+  } else if (type === 'repas') {
+    if (!readRepas(ev, err)) return;
   } else {
     ev.couche = radio('couche');
     if (!ev.couche) { err.textContent = 'Choisissez pipi, caca ou les deux.'; return; }
     if (ev.couche !== 'pipi') { ev.couleur = radio('couleur'); ev.consistance = radio('consistance'); ev.quantite = radio('quantite'); }
   }
   if (old && dayKey(old.at) !== dayKey(ev.at)) store.deleteEvent(old);
+  const before = type === 'repas' ? foodStats() : null;
   store.putEvent(ev);
   closeSheet();
+  if (type === 'repas') { toast(repasToast(ev, before), old ? null : () => store.deleteEvent(ev)); return; }
   if (old) toast('Modifié');
   else toast(type === 'biberon' ? `Biberon de ${ev.ml} ml noté` : type === 'dodo' ? (ev.end ? 'Dodo noté' : 'Bonne sieste !') : 'Couche notée', () => store.deleteEvent(ev));
 }
@@ -1616,6 +1905,8 @@ document.addEventListener('click', (e) => {
     toast(`Réveil noté · dodo de ${dur(end - live.at)}`, () => store.putEvent({ ...live, end: null }));
     return;
   }
+  if (t.dataset.food) { const f = FOOD[t.dataset.food]; if (f && f.al === 'lait' && !laitOk()) { toast('🔒 Produits laitiers : en attente de l\'avis du médecin (APLV)'); return; } openSheet('repas', null, { foods: [t.dataset.food] }); return; }
+  if (t.dataset.cfg) { const k = t.dataset.cfg; const cur = k === 'regle3j' ? regle3j() : laitOk(); store.saveConfig({ [k]: !cur }); return; }
   if (t.dataset.ev) { const ev = EV.find((x) => x.id === t.dataset.ev); if (ev) openSheet(ev.t, ev); return; }
   if (t.dataset.mes) { const m = MS.find((x) => x.id === t.dataset.mes); if (m) openSheet('mesure', m); return; }
   if (t.dataset.bibrange) { S.bibRange = t.dataset.bibrange; render(); return; }
