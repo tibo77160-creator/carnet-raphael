@@ -34,6 +34,8 @@
   }
 }
 * { box-sizing: border-box; }
+/* Pas de zoom au double-tap (le pincement pour zoomer reste possible) */
+html, body, button, a, label, input, textarea, select, summary, svg { touch-action: manipulation; }
 html, body { margin: 0; }
 body { background: var(--bg); color: var(--fg); font-family: var(--body); font-size: 16px; line-height: 1.4; -webkit-tap-highlight-color: transparent; -webkit-text-size-adjust: 100%; }
 button, input, textarea, select { font: inherit; color: inherit; }
@@ -540,7 +542,7 @@ const FIREBASE_CONFIG = {
   appId: "1:440010683437:web:9d81d1297c138baab834a4"
 };
 
-const APP_VERSION = '1.5.0';
+const APP_VERSION = '1.5.1';
 const FB_VER = '10.12.2';
 
 (() => {
